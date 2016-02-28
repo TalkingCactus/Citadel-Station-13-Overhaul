@@ -179,8 +179,9 @@ Doesn't work on other aliens/AI.*/
 /obj/effect/proc_holder/alien/neurotoxin
 	name = "Spit Neurotoxin"
 	desc = "Spits neurotoxin at someone, paralyzing them for a short time."
-	plasma_cost = 50
+	plasma_cost = 75
 	action_icon_state = "alien_neurotoxin"
+	has_action = 0
 
 /obj/effect/proc_holder/alien/neurotoxin/fire(mob/living/carbon/alien/user)
 	user.visible_message("<span class='danger'>[user] spits neurotoxin!", "<span class='alertalien'>You spit neurotoxin.</span>")

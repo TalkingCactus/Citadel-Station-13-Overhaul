@@ -14,7 +14,7 @@
 
 // BEGIN_INCLUDE
 #include "_maps\__MAP_DEFINES.dm"
-#include "_maps\tgstation2.dm"
+#include "_maps\asteroidstation.dm"
 #include "code\_compile_options.dm"
 #include "code\hub.dm"
 #include "code\world.dm"
@@ -115,6 +115,9 @@
 #include "code\_onclick\hud\robot.dm"
 #include "code\_onclick\hud\screen_objects.dm"
 #include "code\_onclick\hud\swarmer.dm"
+#include "code\cactus\mob\carbon\alien.dm"
+#include "code\cactus\mob\carbon\human.dm"
+#include "code\cactus\mob\carbon\monkey.dm"
 #include "code\controllers\admin.dm"
 #include "code\controllers\configuration.dm"
 #include "code\controllers\controller.dm"
@@ -1191,6 +1194,7 @@
 #include "code\modules\mob\living\carbon\alien\humanoid\caste\drone.dm"
 #include "code\modules\mob\living\carbon\alien\humanoid\caste\hunter.dm"
 #include "code\modules\mob\living\carbon\alien\humanoid\caste\praetorian.dm"
+#include "code\modules\mob\living\carbon\alien\humanoid\caste\ravager.dm"
 #include "code\modules\mob\living\carbon\alien\humanoid\caste\sentinel.dm"
 #include "code\modules\mob\living\carbon\alien\larva\death.dm"
 #include "code\modules\mob\living\carbon\alien\larva\emote.dm"

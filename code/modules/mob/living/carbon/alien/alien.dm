@@ -50,6 +50,8 @@
 /mob/living/carbon/alien/adjustFireLoss(amount) // Weak to Fire
 	if(amount > 0)
 		..(amount * 2)
+	if(amount >= 20 && health > 0)
+		src.say ("*hurt")
 	else
 		..(amount)
 	return
@@ -226,3 +228,146 @@ Des: Removes all infected images from the alien.
 	if(see_override)
 		see_invisible = see_override
 
+//XENO CRAFTING STUFF//
+
+/obj/item/weapon/xeno_skull
+	name = "alien skull"
+	desc = "The skull from some unfortunate alien. It's been hollowed out."
+	icon = 'icons/mob/alien.dmi'
+	icon_state = "skull_h"
+	origin_tech = "materials=3"
+	w_class = 4
+	unacidable = 1
+
+/obj/item/weapon/xeno_skull/h
+	name = "alien hunter skull"
+	icon_state = "skull_h"
+/obj/item/weapon/xeno_skull/d
+	name = "alien drone skull"
+	icon_state = "skull_d"
+/obj/item/weapon/xeno_skull/s
+	name = "alien sentinel skull"
+	icon_state = "skull_s"
+/obj/item/weapon/xeno_skull/r
+	name = "alien ravager skull"
+	icon_state = "skull_r"
+/obj/item/weapon/xeno_skull/p
+	name = "alien praetorian skull"
+	icon_state = "skull_p"
+/obj/item/weapon/xeno_skull/q
+	name = "alien queen skull"
+	icon_state = "skull_q"
+	w_class = 5
+
+/obj/item/weapon/xenos_claw
+	name = "alien claws"
+	desc = "The claws of a terrible creature."
+	icon = 'icons/mob/alien.dmi'
+	icon_state = "claw"
+	origin_tech = "materials=3"
+	hitsound = 'sound/weapons/bladeslice.ogg'
+	force = 7
+	throwforce = 7
+	w_class = 2
+	unacidable = 1
+
+/obj/item/weapon/xenos_tail
+	name = "alien tail barb"
+	desc = "The sharp end of a xenomorph's tail."
+	icon = 'icons/mob/alien.dmi'
+	icon_state = "tail"
+	origin_tech = "materials=3"
+	embed_chance = 60
+	hitsound = 'sound/weapons/bladeslice.ogg'
+	force = 7
+	throwforce = 14
+	w_class = 2
+	unacidable = 1
+
+/obj/item/stack/sheet/animalhide/xeno
+	name = "alien hide"
+	icon = 'icons/mob/alien.dmi'
+	desc = "The skin of a terrible creature."
+	singular_name = "alien hide piece"
+	icon_state = "hide"
+	origin_tech = "materials=3"
+	w_class = 3
+	unacidable = 1
+
+//CRAFTABLES//
+
+//SPEAR
+/obj/item/weapon/twohanded/spear/xeno
+	name = "alien spear"
+	desc = "A simple metal rod with the sharp end of a xenomorph tail tied on the end of it. Give em' a taste of their own medicine!"
+	force = 15
+	throwforce = 22
+	force_wielded = 22
+	embed_chance = 80
+	embedded_impact_pain_multiplier = 4
+	icon = 'icons/mob/alien.dmi'
+	icon_state = "spearxeno0"
+	unacidable = 1
+
+/obj/item/weapon/twohanded/spear/xeno/update_icon()
+	if(explosive)
+		icon_state = "spearxeno_bomb[wielded]"
+	else
+		icon_state = "spearxeno[wielded]"
+
+//SHIELD
+/obj/item/weapon/shield/xeno
+	name = "alien shield"
+	desc = "The skull of an alien, hollowed out and fashioned into an arm-length piece of chitin which effectively blocks melee attacks. Acid-resistant!"
+	unacidable = 1
+	icon = 'icons/mob/alien.dmi'
+	icon_state = "xeno_shield"
+	item_state = "xeno_shield"
+	force = 10
+	origin_tech = "materials=3"
+	attack_verb = list("shoved", "bashed")
+
+//ARMOR
+/obj/item/clothing/suit/xeno_armor
+	name = "alien armor"
+	desc = "A suit of armor made out of chitinous alien hide."
+	unacidable = 1
+	icon_state = "xenos"
+	item_state = "alien_helm"
+	body_parts_covered = CHEST|GROIN|LEGS|ARMS|HANDS
+	flags_inv = HIDEGLOVES|HIDESHOES|HIDEJUMPSUIT
+	allowed = list(/obj/item/clothing/mask/facehugger)
+	armor = list(melee = 35, bullet = 10, laser = -50, energy = 0, bomb = 10, bio = 10, rad = 30)
+//HELMET
+/obj/item/clothing/head/xeno_helm
+	name = "alien helmet"
+	icon_state = "xenos"
+	unacidable = 1
+	item_state = "alien_helm"
+	desc = "An armored helmet made out of chitinous alien hide."
+	flags_inv = HIDEMASK|HIDEEARS|HIDEEYES|HIDEFACE
+	armor = list(melee = 35, bullet = 10, laser = -50, energy = 0, bomb = 10, bio = 10, rad = 30)
+//CRAFTING RECIPES//
+/datum/table_recipe/xenoshield
+	name = "alien shield"
+	result = /obj/item/weapon/shield/xeno
+	reqs = list(/obj/item/weapon/xeno_skull)
+	tools = list(/obj/item/weapon/kitchen/knife)
+	time = 50
+	category = CAT_MISC
+
+/datum/table_recipe/xeno_armor
+	name = "alien armor"
+	result = /obj/item/clothing/suit/xeno_armor
+	reqs = list(/obj/item/stack/sheet/animalhide/xeno = 2)
+	tools = list(/obj/item/weapon/kitchen/knife)
+	time = 100
+	category = CAT_MISC
+
+/datum/table_recipe/xeno_helm
+	name = "alien helmet"
+	result = /obj/item/clothing/head/xeno_helm
+	reqs = list(/obj/item/weapon/xeno_skull)
+	tools = list(/obj/item/weapon/kitchen/knife)
+	time = 50
+	category = CAT_MISC

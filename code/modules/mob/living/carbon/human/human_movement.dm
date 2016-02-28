@@ -17,6 +17,19 @@
 	if(istype(J) && J.allow_thrust(0.01, src))
 		return 1
 
+/mob/living/carbon/human/Move(NewLoc, direct)// Footstep sounds
+	. = ..()
+	if(health > 0 && !resting && !sleeping && !paralysis && has_gravity(src) && !buckled && !stat && isturf(loc) && alpha > 0)
+		if(footstep > 0 && src.loc == NewLoc && (m_intent == "run"))
+			if(shoes)
+				playsound(src, pick('code/cactus/sound/misc/step/stepShoes1.ogg', 'code/cactus/sound/misc/step/stepShoes2.ogg', 'code/cactus/sound/misc/step/stepShoes3.ogg', 'code/cactus/sound/misc/step/stepShoes4.ogg', 'code/cactus/sound/misc/step/stepShoes5.ogg', 'code/cactus/sound/misc/step/stepShoes6.ogg', 'code/cactus/sound/misc/step/stepShoes7.ogg'), 50, 0, 0)
+				footstep = 0
+			if(!shoes)
+				playsound(src, pick('code/cactus/sound/misc/step/stepBare1.ogg', 'code/cactus/sound/misc/step/stepBare2.ogg', 'code/cactus/sound/misc/step/stepBare3.ogg', 'code/cactus/sound/misc/step/stepBare4.ogg', 'code/cactus/sound/misc/step/stepBare5.ogg'),25, 0, 0)
+				footstep = 0
+		else if(src.loc == NewLoc)
+			footstep++
+
 /mob/living/carbon/human/slip(s_amount, w_amount, obj/O, lube)
 	if(isobj(shoes) && (shoes.flags&NOSLIP) && !(lube&GALOSHES_DONT_HELP))
 		return 0

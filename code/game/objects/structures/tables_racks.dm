@@ -68,7 +68,7 @@
 
 /obj/structure/table/attack_alien(mob/living/user)
 	user.do_attack_animation(src)
-	playsound(src.loc, 'sound/weapons/bladeslice.ogg', 50, 1)
+	playsound(src.loc, pick('sound/alien/Effects/bang1.ogg', 'sound/alien/Effects/bang2.ogg', 'sound/alien/Effects/bang3.ogg', 'sound/alien/Effects/bang4.ogg', 'sound/alien/Effects/bang5.ogg', 'sound/alien/Effects/bang6.ogg', 'sound/alien/Effects/bang7.ogg', 'sound/alien/Effects/bang8.ogg'), 100, 0, 0)
 	visible_message("<span class='danger'>[user] slices [src] apart!</span>")
 	table_destroy(1)
 

@@ -38,7 +38,8 @@
 /mob/living/carbon/alien/humanoid/movement_delay()
 	. = ..()
 	. += move_delay_add + config.alien_delay + sneaking	//move_delay_add is used to slow aliens with stuns
-
+	if(pulling)
+		. += 1
 /mob/living/carbon/alien/humanoid/emp_act(severity)
 	if(r_store) r_store.emp_act(severity)
 	if(l_store) l_store.emp_act(severity)

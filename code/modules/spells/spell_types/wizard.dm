@@ -352,6 +352,7 @@
 /obj/effect/proc_holder/spell/aoe_turf/repulse/xeno/cast(list/targets,mob/user = usr)
 	if(istype(user, /mob/living/carbon))
 		var/mob/living/carbon/C = user
-		playsound(C.loc, 'sound/voice/hiss5.ogg', 80, 1, 1)
+		if(isalienadult(C))
+			C.say("*screech")
 		C.spin(6,1)
 	..()

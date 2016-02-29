@@ -2,6 +2,7 @@
 	//Common stuffs for Praetorian and Queen
 	icon = 'icons/mob/alienqueen.dmi'
 	status_flags = 0
+	pass_flags = null
 	ventcrawler = 0 //pull over that ass too fat
 	unique_name = 0
 	heat_protection = 2 //thicker exoskeletons, greater heat protection
@@ -44,13 +45,15 @@
 	internal_organs += new /obj/item/organ/internal/alien/neurotoxin
 	internal_organs += new /obj/item/organ/internal/alien/eggsac
 	AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/repulse/xeno(src))
+	AddAbility(new/obj/effect/proc_holder/alien/royal/queen/screech())
 	AddAbility(new/obj/effect/proc_holder/alien/royal/queen/promote())
 	..()
 
 /mob/living/carbon/alien/humanoid/royal/queen/movement_delay()
 	. = ..()
 	. += 5
-
+	if((locate(/obj/structure/alien/weeds) in src.loc) && has_gravity())
+		. -= 1
 
 //Queen verbs
 /obj/effect/proc_holder/alien/lay_egg

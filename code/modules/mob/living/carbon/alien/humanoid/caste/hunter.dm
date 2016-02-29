@@ -113,7 +113,7 @@
 				src.canmove = 0
 				sleep(2)//Runtime prevention (infinite bump() calls on hulks)
 				step_towards(src,L)
-				sleep(200)
+				sleep(20)
 				src.canmove = 1
 
 		else if(A.density && !A.CanPass(src))

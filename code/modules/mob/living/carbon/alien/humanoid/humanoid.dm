@@ -1,3 +1,4 @@
+#define MAX_ALIEN_CHARGE_DIST 5
 /mob/living/carbon/alien/humanoid
 	name = "alien"
 	icon_state = "alien_s"
@@ -9,10 +10,24 @@
 	var/alt_icon = 'icons/mob/alienleap.dmi' //used to switch between the two alien icon files.
 	var/leap_on_click = 0
 	var/pounce_cooldown = 0
-	var/pounce_cooldown_time = 30
+	var/pounce_cooldown_time = 50
+	var/spit_cooldown = 0
+	var/spit_cooldown_time = 150
+	var/charge_cooldown = 0
+	var/charge_cooldown_time = 150
 	var/custom_pixel_x_offset = 0 //for admin fuckery.
 	var/custom_pixel_y_offset = 0
 	var/sneaking = 0 //For sneaky-sneaky mode and appropriate slowdown
+	var/footstep = 1
+
+/mob/living/carbon/alien/humanoid/Move(NewLoc, direct)// Footstep sounds
+	. = ..()
+	if(health > 0 && !resting && !sleeping && !paralysis && !sneaking && !leaping && has_gravity(src) && !buckled && isturf(loc)) //If you're sneaking you're quiet too.
+		if(footstep > 0 && src.loc == NewLoc)
+			playsound(src.loc, pick('sound/alien/Effects/step1.ogg', 'sound/alien/Effects/step2.ogg', 'sound/alien/Effects/step3.ogg', 'sound/alien/Effects/step4.ogg', 'sound/alien/Effects/step5.ogg', 'sound/alien/Effects/step6.ogg', 'sound/alien/Effects/step7.ogg'), 25, 0, 0)
+			footstep = 0
+		else if(src.loc == NewLoc)
+			footstep++
 
 //This is fine right now, if we're adding organ specific damage this needs to be updated
 /mob/living/carbon/alien/humanoid/New()
@@ -23,7 +38,8 @@
 /mob/living/carbon/alien/humanoid/movement_delay()
 	. = ..()
 	. += move_delay_add + config.alien_delay + sneaking	//move_delay_add is used to slow aliens with stuns
-
+	if(pulling)
+		. += 1
 /mob/living/carbon/alien/humanoid/emp_act(severity)
 	if(r_store) r_store.emp_act(severity)
 	if(l_store) l_store.emp_act(severity)
@@ -167,3 +183,38 @@ proc/alien_type_present(var/alienpath)
 			continue
 		return 1
 	return 0
+
+/mob/living/carbon/alien/humanoid/proc/spit_at(atom/A)
+	var/plasma_cost = 75
+	if(paralysis || stat || weakened)
+		src << "<span class ='alertalien'>You can't spit right now!</span>"
+		return
+
+	if(!src.getorgan(/obj/item/organ/internal/alien/neurotoxin))
+		src << "<span class ='alertalien'>You don't have a neurotoxin gland!</span>"
+		return
+
+	if(spit_cooldown)
+		src << "<span class='alertalien'>You can't spit yet!</span>"
+		return
+
+	if(getPlasma() < plasma_cost)
+		if(!silent)
+			src << "<span class='noticealien'>Not enough plasma stored.</span>"
+		return
+	else
+		adjustPlasma(-plasma_cost)
+		src.visible_message(
+			"<span class ='danger'>[src] spits neurotoxin at [A]!</span>",\
+			"<span class ='danger'>You spit neurotoxin at [A]</span>",\
+			"<span class ='italics'>You hear squelching...</span>")
+		playsound(src.loc, 'sound/alien/Effects/spit1.ogg', 100, 1)
+		var/obj/item/projectile/bullet/neurotoxin/N = new /obj/item/projectile/bullet/neurotoxin(src.loc)
+//		N.throw_proj(A)
+		N.yo = A.y - src.y
+		N.xo = A.x - src.x
+		N.fire()
+		spit_cooldown = !spit_cooldown
+		spawn(spit_cooldown_time) //15s by default
+			src << "<span class='noticealien'>You're ready to spit again.</span>"
+			spit_cooldown = !spit_cooldown

@@ -79,6 +79,17 @@
 		ooc_allowed = !ooc_allowed
 	world << "<B>The OOC channel has been globally [ooc_allowed ? "enabled" : "disabled"].</B>"
 
+/proc/toggle_looc(toggle = null)
+	if(toggle != null) //if we're specifically en/disabling looc
+		if(toggle != looc_allowed)
+			looc_allowed = toggle
+		else
+			return
+	else //otherwise just toggle it
+		looc_allowed = !looc_allowed
+	world << "<B>The LOOC channel has been globally [looc_allowed ? "enabled" : "disabled"].</B>"
+
+
 var/global/normal_ooc_colour = OOC_COLOR
 
 /client/proc/set_ooc(newColor as color)

@@ -6,7 +6,7 @@
 	name = "alien"
 	voice_name = "alien"
 	icon = 'icons/mob/alien.dmi'
-	gender = NEUTER
+	gender = FEMALE
 	dna = null
 	faction = list("alien")
 	ventcrawler = 2
@@ -50,6 +50,8 @@
 /mob/living/carbon/alien/adjustFireLoss(amount) // Weak to Fire
 	if(amount > 0)
 		..(amount * 2)
+	if(amount >= 20 && !stat)
+		src.say ("*hurt")
 	else
 		..(amount)
 	return
@@ -225,4 +227,3 @@ Des: Removes all infected images from the alien.
 
 	if(see_override)
 		see_invisible = see_override
-

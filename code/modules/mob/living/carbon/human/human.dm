@@ -4,7 +4,7 @@
 	voice_name = "Unknown"
 	icon = 'icons/mob/human.dmi'
 	icon_state = "caucasian1_m_s"
-
+	var/footstep = 1
 
 
 /mob/living/carbon/human/dummy

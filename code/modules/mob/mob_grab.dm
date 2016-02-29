@@ -5,8 +5,8 @@
 	name = "grab"
 	flags = NOBLUDGEON | ABSTRACT
 	var/obj/screen/grab/hud = null
-	var/mob/affecting = null
-	var/mob/assailant = null
+	var/mob/living/affecting = null
+	var/mob/living/assailant = null
 	var/state = GRAB_PASSIVE
 
 	var/allow_upgrade = 1
@@ -19,8 +19,13 @@
 
 /obj/item/weapon/grab/New(mob/user, mob/victim)
 	..()
+	loc = user
 	assailant = user
 	affecting = victim
+
+	if(affecting.anchored || !user.Adjacent(victim))
+		qdel(src)
+		return
 
 	hud = new /obj/screen/grab(src)
 	hud.icon_state = "reinforce"
@@ -118,6 +123,8 @@
 		return
 	if(state == GRAB_UPGRADING)
 		return
+	if(assailant.next_move > world.time)
+		return
 	if(world.time < (last_upgrade + UPGRADE_COOLDOWN))
 		return
 	if(!assailant.canmove || assailant.lying)
@@ -129,16 +136,16 @@
 	if(state < GRAB_AGGRESSIVE)
 		if(!allow_upgrade)
 			return
-		assailant.visible_message("<span class='warning'>[assailant] grabs [affecting] aggressively!</span>")
+		assailant.visible_message("<span class='warning'>[assailant] has grabbed [affecting] aggressively (now hands)!</span>")
 		state = GRAB_AGGRESSIVE
 		icon_state = "grabbed1"
 	else
 		if(state < GRAB_NECK)
 			if(isslime(affecting))
-				assailant << "<span class='warning'>You squeeze [affecting], but nothing interesting happens!</span>"
+				assailant << "<span class='notice'>You squeeze [affecting], but nothing interesting happens.</span>"
 				return
 
-			assailant.visible_message("<span class='warning'>[assailant] moves \his grip to [affecting]'s neck!</span>")
+			assailant.visible_message("<span class='warning'>[assailant] has reinforced \his grip on [affecting] (now neck)!</span>")
 			state = GRAB_NECK
 			icon_state = "grabbed+1"
 			if(!affecting.buckled)
@@ -148,29 +155,56 @@
 			hud.name = "disarm/kill"
 		else
 			if(state < GRAB_UPGRADING)
-				assailant.visible_message("<span class='danger'>[assailant] starts to tighten \his grip on [affecting]'s neck!</span>")
-				hud.icon_state = "disarm/kill1"
-				state = GRAB_UPGRADING
-				if(do_after(assailant, UPGRADE_KILL_TIMER, target = affecting))
-					if(state == GRAB_KILL)
-						return
-					if(!affecting)
-						qdel(src)
-						return
-					if(!assailant.canmove || assailant.lying)
-						qdel(src)
-						return
-					state = GRAB_KILL
-					assailant.visible_message("<span class='danger'>[assailant] tightens \his grip on [affecting]'s neck!</span>")
-					add_logs(assailant, affecting, "strangled")
-
-					assailant.changeNext_move(CLICK_CD_TKSTRANGLE)
-					affecting.losebreath += 1
+				if(isalienadult(assailant) && (ishuman(affecting) || ismonkey(affecting)))
+					assailant.visible_message("<span class='danger'>[assailant] starts coiling \his tail...</span>")
+					hud.icon_state = "disarm/kill1"
+					state = GRAB_UPGRADING
+					if(do_after(assailant, UPGRADE_KILL_TIMER, target = affecting))
+						if(state == GRAB_KILL)
+							return
+						if(!affecting)
+							qdel(src)
+							return
+						if(!assailant.canmove || assailant.lying)
+							qdel(src)
+							return
+						state = GRAB_KILL
+						assailant.visible_message("<span class='danger'>[assailant] impales [affecting] with their tail!</span>")
+						playsound(affecting.loc, 'sound/alien/Effects/tailstab.ogg', 100, 0, 7)
+						add_logs(assailant, affecting, "tail-stabbed")
+						var/tailstabbedoverlay = image('icons/mob/alien.dmi', loc = affecting, icon_state = "tailstabbed_stand")
+						affecting.overlays += tailstabbedoverlay
+						assailant.changeNext_move(CLICK_CD_TKSTRANGLE)
+						affecting.adjustBruteLoss(200)
+					else
+						if(assailant)
+							assailant.visible_message("<span class='warning'>[assailant] relaxes \his tail.</span>")
+							hud.icon_state = "disarm/kill"
+							state = GRAB_NECK
 				else
-					if(assailant)
-						assailant.visible_message("<span class='warning'>[assailant] is unable to tighten \his grip on [affecting]'s neck!</span>")
-						hud.icon_state = "disarm/kill"
-						state = GRAB_NECK
+					assailant.visible_message("<span class='danger'>[assailant] starts to tighten \his grip on [affecting]'s neck!</span>")
+					hud.icon_state = "disarm/kill1"
+					state = GRAB_UPGRADING
+					if(do_after(assailant, UPGRADE_KILL_TIMER, target = affecting))
+						if(state == GRAB_KILL)
+							return
+						if(!affecting)
+							qdel(src)
+							return
+						if(!assailant.canmove || assailant.lying)
+							qdel(src)
+							return
+						state = GRAB_KILL
+						assailant.visible_message("<span class='danger'>[assailant] has tightened \his grip on [affecting]'s neck!</span>")
+						add_logs(assailant, affecting, "strangled")
+
+						assailant.changeNext_move(CLICK_CD_TKSTRANGLE)
+						affecting.losebreath += 1
+					else
+						if(assailant)
+							assailant.visible_message("<span class='warning'>[assailant] was unable to tighten \his grip on [affecting]'s neck!</span>")
+							hud.icon_state = "disarm/kill"
+							state = GRAB_NECK
 
 
 //This is used to make sure the victim hasn't managed to yackety sax away before using the grab.
@@ -199,19 +233,19 @@
 		if( (ishuman(user) && (user.disabilities & FAT) && ismonkey(affecting) ) || ( isalien(user) && iscarbon(affecting) ) )
 			var/mob/living/carbon/attacker = user
 			user.visible_message("<span class='danger'>[user] is attempting to devour [affecting]!</span>")
-			if(istype(user, /mob/living/carbon/alien/humanoid/hunter))
-				if(!do_mob(user, affecting, 60)) return
+			if(istype(user, /mob/living/carbon/alien/humanoid))
+				if(!do_mob(user, affecting)||!do_after(user, 60))
+					return
 			else
-				if(!do_mob(user, affecting, 130)) return
+				return
 			user.visible_message("<span class='danger'>[user] devours [affecting]!</span>")
 			affecting.loc = user
 			attacker.stomach_contents.Add(affecting)
 			qdel(src)
-
-	add_logs(user, affecting, "attempted to put", src, "into [M]")
+	if(state >= GRAB_AGGRESSIVE && isguardian(affecting))
+		return
 
 /obj/item/weapon/grab/dropped()
-	..()
 	qdel(src)
 
 #undef UPGRADE_COOLDOWN

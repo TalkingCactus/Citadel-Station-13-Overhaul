@@ -82,7 +82,7 @@
 		if (act == "deathgasp")
 			playsound(src.loc, 'sound/voice/hiss6.ogg', 80, 0, 16)
 
-		if (act == "screech")
+		if (act == "screech" || act == "roar")
 			playsound(src.loc, pick('sound/alien/Voice/screech1.ogg', 'sound/alien/Voice/screech2.ogg', 'sound/alien/Voice/screech3.ogg', 'sound/alien/Voice/screech4.ogg'), 100, 0, 16)
 
 		if (act == "hiss")

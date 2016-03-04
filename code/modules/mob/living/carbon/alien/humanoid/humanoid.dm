@@ -19,6 +19,7 @@
 	var/custom_pixel_y_offset = 0
 	var/sneaking = 0 //For sneaky-sneaky mode and appropriate slowdown
 	var/footstep = 1
+	var/crawling = 0
 
 /mob/living/carbon/alien/humanoid/Move(NewLoc, direct)// Footstep sounds
 	. = ..()

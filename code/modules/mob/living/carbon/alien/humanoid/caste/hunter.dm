@@ -20,6 +20,9 @@
 	. += ..()
 	. += 0
 
+/mob/living/carbon/alien/humanoid/hunter/examine(mob/user)
+	..()
+	user << "<span class='notice'>A fast alien with powerful legs for pouncing.</span>"
 
 //Hunter verbs
 

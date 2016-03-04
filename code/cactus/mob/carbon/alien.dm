@@ -24,9 +24,7 @@
 					open(2)
 		return
 
-	else
-
-		return
+	return
 
 /obj/machinery/door/firedoor/attack_alien(mob/user) //PRYING OPEN FIREDOORS
 	user.changeNext_move(CLICK_CD_MELEE)
@@ -98,6 +96,19 @@
 	else
 		return
 
+/obj/structure/barricade/attack_alien(mob/user)
+	if(isalienadult(user))
+		playsound(src, 'sound/weapons/bladeslice.ogg', 100, 0, 0)
+		health -= 15
+		user.do_attack_animation(src)
+		user.changeNext_move(CLICK_CD_MELEE)
+	if(health <= 0)
+		visible_message("<span class='warning'>[user] destroys [src]!</span>")
+		qdel(src)
+	else
+		visible_message("<span class='notice'>[user] smashes against [src]!</span>")
+	return
+
 //XENO CRAFTING STUFF//
 
 /obj/item/weapon/xeno_skull
@@ -112,6 +123,9 @@
 /obj/item/weapon/xeno_skull/h
 	name = "alien hunter skull"
 	icon_state = "skull_h"
+/obj/item/weapon/xeno_skull/run
+	name = "alien runner skull"
+	icon_state = "skull_run"
 /obj/item/weapon/xeno_skull/d
 	name = "alien drone skull"
 	icon_state = "skull_d"

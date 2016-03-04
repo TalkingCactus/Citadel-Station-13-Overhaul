@@ -16,7 +16,7 @@ var/const/MAX_ACTIVE_TIME = 400
 	item_state = "facehugger"
 	w_class = 1 //note: can be picked up by aliens unlike most other items of w_class below 4
 	flags = MASKINTERNALS
-	throw_range = 5
+	throw_range = 2
 	tint = 3
 	flags_cover = MASKCOVERSEYES | MASKCOVERSMOUTH
 	layer = MOB_LAYER
@@ -30,6 +30,12 @@ var/const/MAX_ACTIVE_TIME = 400
 	var/attached = 0
 
 /obj/item/clothing/mask/facehugger/attack_alien(mob/user) //can be picked up by aliens
+	if(isalienadult(user))
+		var/mob/living/carbon/alien/humanoid/A = user
+		if(A.crawling)
+			return
+	if(isalienravager(user))
+		return
 	attack_hand(user)
 	return
 

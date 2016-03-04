@@ -1,6 +1,6 @@
 
 /mob/living/carbon/human/restrained()
-	var/obj/structure/bed/nest/N = buckled
+	var/obj/structure/bed/nest/N
 	if (handcuffed)
 		return 1
 	if (wear_suit && wear_suit.breakouttime)

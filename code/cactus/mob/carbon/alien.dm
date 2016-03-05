@@ -15,8 +15,8 @@
 			return
 		else if(!locked && !welded && density && !operating)
 			visible_message(
-				"<span class='notice'>[user] begins prying open [src].</span>",\
-				"<span class='notice'>You begin prying open [src].</span>",\
+				"<span class='notice'>[user] begins prying open [src].</span>", \
+				"<span class='notice'>You begin prying open [src].</span>", \
 				"<span class='italics'>You hear prying...</span>")
 			playsound(src, 'sound/machines/airlockforced_alien.ogg', 100, 1)
 			if(do_after(user, 40,5,1, target = src))
@@ -31,8 +31,8 @@
 	if(isalienadult(user))
 		if(!blocked && density)
 			visible_message(
-				"<span class='notice'>[user] begins prying open [src].</span>",\
-				"<span class='notice'>You begin prying open [src].</span>",\
+				"<span class='notice'>[user] begins prying open [src].</span>", \
+				"<span class='notice'>You begin prying open [src].</span>", \
 				"<span class='italics'>You hear prying...</span>")
 			playsound(src, 'sound/machines/airlockforced_alien.ogg', 100, 1)
 			if(do_after(user, 40,5,1, target = src))
@@ -44,7 +44,10 @@
 	user.changeNext_move(CLICK_CD_MELEE)
 	if(isalienadult(user))
 		if(density)
-			user << text("<span class='notice'>You begin prying open the [src].</span>")
+			visible_message(
+				"<span class='notice'>[user] begins prying open [src].</span>", \
+				"<span class='notice'>You begin prying open [src].</span>", \
+				"<span class='italics'>You hear prying...</span>")
 			playsound(src, 'sound/machines/airlockforced_alien.ogg', 100, 1)
 			if(do_after(user, 40,5,1, target = src))
 				if(density)

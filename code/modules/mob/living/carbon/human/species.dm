@@ -373,6 +373,8 @@
 					S.= animated_tails_list_lizard[H.dna.features["tail_lizard"]]
 				if("tail_human")
 					S = tails_list_human[H.dna.features["tail_human"]]
+				if("tail")
+					S = tails_list_human[H.dna.features["tail"]]
 				if("waggingtail_human")
 					S.= animated_tails_list_human[H.dna.features["tail_human"]]
 				if("spines")

@@ -144,7 +144,6 @@
 /mob/living/carbon/alien/humanoid/hunter/lusty/New()
 	internal_organs += /obj/item/organ/internal/alien/plasmavessel/large
 	AddAbility(new /obj/effect/proc_holder/alien/sneak)
-	..()
 
 /mob/living/carbon/alien/humanoid/hunter/lusty/IsAdvancedToolUser()
 	return 1
@@ -157,7 +156,6 @@
 /mob/living/carbon/alien/humanoid/hunter/lusty/New()
 	internal_organs += /obj/item/organ/internal/alien/plasmavessel/large
 	AddAbility(new /obj/effect/proc_holder/alien/sneak)
-	..()
 
 /mob/living/carbon/alien/humanoid/hunter/admin/IsAdvancedToolUser()
 	return 1

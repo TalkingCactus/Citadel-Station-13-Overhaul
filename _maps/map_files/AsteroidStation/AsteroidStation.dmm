@@ -3239,7 +3239,7 @@
 "bko" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{dir = 4},/obj/structure/disposalpipe/segment,/turf/simulated/floor/plasteel,/area/engine/engineering)
 "bkp" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{dir = 4},/obj/structure/extinguisher_cabinet{pixel_y = -30},/turf/simulated/floor/plasteel{icon_state = "warningcorner"},/area/engine/engineering)
 "bkq" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{dir = 4},/turf/simulated/floor/plasteel{icon_state = "warning"},/area/engine/engineering)
-"bkr" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{dir = 4},/turf/simulated/floor/plasteel{icon_state = "warningcorner"; dir = 1},/area/engine/engineering)
+"bkr" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{dir = 4},/obj/structure/closet/wardrobe/engineering_yellow,/turf/simulated/floor/plasteel{icon_state = "warningcorner"; dir = 1},/area/engine/engineering)
 "bks" = (/obj/structure/closet/secure_closet/engineering_personal,/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{dir = 4},/turf/simulated/floor/plasteel{icon_state = "yellowcorner"},/area/engine/engineering)
 "bkt" = (/obj/structure/closet/secure_closet/engineering_personal,/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden{dir = 9},/turf/simulated/floor/plasteel{dir = 6; icon_state = "yellow"},/area/engine/engineering)
 "bku" = (/obj/machinery/atmospherics/pipe/simple/scrubbers/hidden,/obj/structure/disposalpipe/segment,/turf/simulated/floor/plasteel{dir = 1; icon_state = "yellowcorner"},/area/hallway/primary/starboard{name = "Starboard Hallway"})

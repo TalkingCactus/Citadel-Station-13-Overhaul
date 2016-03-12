@@ -234,14 +234,16 @@ var/const/MAX_ACTIVE_TIME = 400
 		return 0
 	if(M.getorgan(/obj/item/organ/internal/alien/hivenode))
 		return 0
-
 	if(iscorgi(M) || ismonkey(M))
 		return 1
-
 	var/mob/living/carbon/C = M
 	if(ishuman(C) && !(slot_wear_mask in C.dna.species.no_equip))
 		var/mob/living/carbon/human/H = C
 		if(H.is_mouth_covered(head_only = 1))
 			return 0
+		if(H.wear_mask)
+			var/obj/item/clothing/mask/facehugger/FH = H.wear_mask
+			if(H.wear_mask == FH)
+				return 0
 		return 1
 	return 0

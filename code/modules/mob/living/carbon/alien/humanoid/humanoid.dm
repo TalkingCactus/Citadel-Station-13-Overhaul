@@ -12,9 +12,9 @@
 	var/pounce_cooldown = 0
 	var/pounce_cooldown_time = 50
 	var/spit_cooldown = 0
-	var/spit_cooldown_time = 150
+	var/spit_cooldown_time = 100
 	var/charge_cooldown = 0
-	var/charge_cooldown_time = 150
+	var/charge_cooldown_time = 100
 	var/custom_pixel_x_offset = 0 //for admin fuckery.
 	var/custom_pixel_y_offset = 0
 	var/sneaking = 0 //For sneaky-sneaky mode and appropriate slowdown

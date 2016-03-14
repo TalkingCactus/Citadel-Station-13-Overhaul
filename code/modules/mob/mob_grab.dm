@@ -156,6 +156,9 @@
 		else
 			if(state < GRAB_UPGRADING)
 				if(isalienadult(assailant) && (ishuman(affecting) || ismonkey(affecting)))
+					if(affecting.getorgan(/obj/item/organ/internal/body_egg/alien_embryo))
+						assailant << "<span class='warning'>Stabbing [affecting] would kill the child!</span>"
+						return
 					assailant.visible_message("<span class='danger'>[assailant] starts coiling \his tail...</span>")
 					hud.icon_state = "disarm/kill1"
 					state = GRAB_UPGRADING

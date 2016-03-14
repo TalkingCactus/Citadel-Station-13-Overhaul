@@ -15,8 +15,8 @@
 			return
 		else if(!locked && !welded && density && !operating)
 			visible_message(
-				"<span class='notice'>[user] begins prying open [src].</span>",\
-				"<span class='notice'>You begin prying open [src].</span>",\
+				"<span class='notice'>[user] begins prying open [src].</span>", \
+				"<span class='notice'>You begin prying open [src].</span>", \
 				"<span class='italics'>You hear prying...</span>")
 			playsound(src, 'sound/machines/airlockforced_alien.ogg', 100, 1)
 			if(do_after(user, 40,5,1, target = src))
@@ -24,17 +24,15 @@
 					open(2)
 		return
 
-	else
-
-		return
+	return
 
 /obj/machinery/door/firedoor/attack_alien(mob/user) //PRYING OPEN FIREDOORS
 	user.changeNext_move(CLICK_CD_MELEE)
 	if(isalienadult(user))
 		if(!blocked && density)
 			visible_message(
-				"<span class='notice'>[user] begins prying open [src].</span>",\
-				"<span class='notice'>You begin prying open [src].</span>",\
+				"<span class='notice'>[user] begins prying open [src].</span>", \
+				"<span class='notice'>You begin prying open [src].</span>", \
 				"<span class='italics'>You hear prying...</span>")
 			playsound(src, 'sound/machines/airlockforced_alien.ogg', 100, 1)
 			if(do_after(user, 40,5,1, target = src))
@@ -46,7 +44,10 @@
 	user.changeNext_move(CLICK_CD_MELEE)
 	if(isalienadult(user))
 		if(density)
-			user << text("<span class='notice'>You begin prying open the [src].</span>")
+			visible_message(
+				"<span class='notice'>[user] begins prying open [src].</span>", \
+				"<span class='notice'>You begin prying open [src].</span>", \
+				"<span class='italics'>You hear prying...</span>")
 			playsound(src, 'sound/machines/airlockforced_alien.ogg', 100, 1)
 			if(do_after(user, 40,5,1, target = src))
 				if(density)
@@ -98,6 +99,19 @@
 	else
 		return
 
+/obj/structure/barricade/attack_alien(mob/user)
+	if(isalienadult(user))
+		playsound(src, 'sound/weapons/bladeslice.ogg', 100, 0, 0)
+		health -= 15
+		user.do_attack_animation(src)
+		user.changeNext_move(CLICK_CD_MELEE)
+	if(health <= 0)
+		visible_message("<span class='warning'>[user] destroys [src]!</span>")
+		qdel(src)
+	else
+		visible_message("<span class='notice'>[user] smashes against [src]!</span>")
+	return
+
 //XENO CRAFTING STUFF//
 
 /obj/item/weapon/xeno_skull
@@ -112,6 +126,9 @@
 /obj/item/weapon/xeno_skull/h
 	name = "alien hunter skull"
 	icon_state = "skull_h"
+/obj/item/weapon/xeno_skull/run
+	name = "alien runner skull"
+	icon_state = "skull_run"
 /obj/item/weapon/xeno_skull/d
 	name = "alien drone skull"
 	icon_state = "skull_d"

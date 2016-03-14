@@ -3,14 +3,12 @@
 	overlays.Cut()
 	for(var/image/I in overlays_standing)
 		overlays += I
-
 	if(stat == DEAD)
 		//If we mostly took damage from fire
 		if(fireloss > 125)
 			icon_state = "alien[caste]_husked"
 		else
 			icon_state = "alien[caste]_dead"
-
 	else if((stat == UNCONSCIOUS && !sleeping) || weakened)
 		icon_state = "alien[caste]_unconscious"
 	else if(leap_on_click)
@@ -21,7 +19,15 @@
 	else if(mob_size == MOB_SIZE_LARGE)
 		icon_state = "alien[caste]"
 	else
-		icon_state = "alien[caste]_s"
+		if(crawling)
+			if(alt_icon == initial(alt_icon))
+				var/old_icon = icon
+				icon = alt_icon
+				alt_icon = old_icon
+				icon_state = "alien[caste]_crawling"
+				pixel_x = -16
+		else
+			icon_state = "alien[caste]_s"
 
 	if(leaping)
 		if(alt_icon == initial(alt_icon))
@@ -31,7 +37,7 @@
 		icon_state = "alien[caste]_leap"
 		pixel_x = -32
 		pixel_y = -32
-	else
+	else if(!crawling)
 		if(alt_icon != initial(alt_icon))
 			var/old_icon = icon
 			icon = alt_icon

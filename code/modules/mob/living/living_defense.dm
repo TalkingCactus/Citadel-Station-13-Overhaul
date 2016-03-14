@@ -287,7 +287,7 @@
 
 	switch(M.a_intent)
 		if ("help")
-			visible_message("<span class='notice'>[M] caresses [src] with its scythe like arm.</span>")
+			visible_message("<span class='notice'>[M] caresses [src] with its scythe like claws.</span>")
 			return 0
 
 		if ("grab")

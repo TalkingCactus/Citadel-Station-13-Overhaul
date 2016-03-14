@@ -12,14 +12,15 @@
 	var/pounce_cooldown = 0
 	var/pounce_cooldown_time = 50
 	var/spit_cooldown = 0
-	var/spit_cooldown_time = 150
+	var/spit_cooldown_time = 100
 	var/charge_cooldown = 0
-	var/charge_cooldown_time = 150
+	var/charge_cooldown_time = 100
 	var/custom_pixel_x_offset = 0 //for admin fuckery.
 	var/custom_pixel_y_offset = 0
 	var/sneaking = 0 //For sneaky-sneaky mode and appropriate slowdown
 	var/footstep = 1
-
+	var/crawling = 0
+	var/crawl_cost = 5 //plasma cost per Life() that you're crawling
 /mob/living/carbon/alien/humanoid/Move(NewLoc, direct)// Footstep sounds
 	. = ..()
 	if(health > 0 && !resting && !sleeping && !paralysis && !sneaking && !leaping && has_gravity(src) && !buckled && isturf(loc)) //If you're sneaking you're quiet too.

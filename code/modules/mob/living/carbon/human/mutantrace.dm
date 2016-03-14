@@ -4,7 +4,8 @@ var/global/list/colored_mutraces = list( // these mutantraces are affected by mu
 	"pod",
 	"slime",
 	"jelly",
-	"golem"
+	"golem",
+	"fox"
 )
 
 var/global/list/mutants_with_eyes = list( // these mutantraces have eyes

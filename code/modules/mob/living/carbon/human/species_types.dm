@@ -230,6 +230,7 @@ var/regex/lizard_hiSS = new("S+", "g")
 	name = "Slimeperson"
 	id = "slime"
 	default_color = "00FFFF"
+	roundstart = 1
 	darksight = 3
 	specflags = list(MUTCOLORS,EYECOLOR,HAIR,FACEHAIR,NOBLOOD,VIRUSIMMUNE)
 	say_mod = "says"

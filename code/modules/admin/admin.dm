@@ -483,16 +483,6 @@ var/global/BSACooldown = 0
 	message_admins("[key_name_admin(usr)] toggled OOC.")
 	feedback_add_details("admin_verb","TOOC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
 
-/datum/admins/proc/togglelooc()
-	set category = "Server"
-	set desc="Toggle dis bitch"
-	set name="Toggle LOOC"
-	toggle_looc()
-	log_admin("[key_name(usr)] toggled LOOC.")
-	message_admins("[key_name_admin(usr)] toggled LOOC.")
-	feedback_add_details("admin_verb","TLOOC") //If you are copy-pasting this, ensure the 2nd parameter is unique to the new proc!
-
-
 /datum/admins/proc/toggleoocdead()
 	set category = "Server"
 	set desc="Toggle dis bitch"

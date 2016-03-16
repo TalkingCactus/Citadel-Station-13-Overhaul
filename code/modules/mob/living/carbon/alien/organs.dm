@@ -41,19 +41,6 @@
 	var/heal_rate = 5
 	var/plasma_rate = 10
 
-/obj/item/organ/internal/alien/plasmavessel/sentinel
-	plasma_rate = 20
-	max_plasma = 400
-	storedPlasma = 250
-	alien_powers = list(/obj/effect/proc_holder/alien/transfer)
-
-/obj/item/organ/internal/alien/plasmavessel/ravager
-	storedPlasma = 50
-	max_plasma = 100
-	plasma_rate = 5
-	heal_rate = 2.5
-	alien_powers = list(/obj/effect/proc_holder/alien/transfer)
-
 /obj/item/organ/internal/alien/plasmavessel/prepare_eat()
 	var/obj/S = ..()
 	S.reagents.add_reagent("plasma", storedPlasma/10)
@@ -121,6 +108,7 @@
 	slot = "hivenode"
 	origin_tech = "biotech=5;magnets=4;bluespace=3"
 	w_class = 1
+	var/recent_queen_death = 0 //Indicates if the queen died recently, aliens are heavily weakened while this is active.
 	alien_powers = list(/obj/effect/proc_holder/alien/whisper)
 
 /obj/item/organ/internal/alien/hivenode/Insert(mob/living/carbon/M, special = 0)
@@ -130,6 +118,36 @@
 /obj/item/organ/internal/alien/hivenode/Remove(mob/living/carbon/M, special = 0)
 	M.faction -= "alien"
 	..()
+
+//When the alien queen dies, all aliens suffer a penalty as punishment for failing to protect her.
+/obj/item/organ/internal/alien/hivenode/proc/queen_death()
+	if(!owner|| owner.stat == DEAD)
+		return
+	if(isalien(owner)) //Different effects for aliens than humans
+		owner << "<span class='userdanger'>Your Queen has been struck down!</span>"
+		owner << "<span class='danger'>You are struck with overwhelming agony! You feel confused, and your connection to the hivemind is severed."
+		owner.emote("roar")
+		owner.Stun(10) //Actually just slows them down a bit.
+
+	else if(ishuman(owner)) //Humans, being more fragile, are more overwhelmed by the mental backlash.
+		owner << "<span class='danger'>You feel a splitting pain in your head, and are struck with a wave of nausea. You cannot hear the hivemind anymore!"
+		owner.emote("scream")
+		owner.Weaken(5)
+
+	owner.jitteriness += 30
+	owner.confused += 30
+	owner.stuttering += 30
+
+	recent_queen_death = 1
+	owner.throw_alert("alien_noqueen", /obj/screen/alert/alien_vulnerable)
+	spawn(2400) //four minutes
+		if(qdeleted(src)) //In case the node is deleted
+			return
+		recent_queen_death = 0
+		if(!owner) //In case the xeno is butchered or subjected to surgery after death.
+			return
+		owner << "<span class='noticealien'>The pain of the queen's death is easing. You begin to hear the hivemind again.</span>"
+		owner.clear_alert("alien_noqueen")
 
 
 /obj/item/organ/internal/alien/resinspinner
@@ -156,7 +174,7 @@
 	zone = "mouth"
 	slot = "neurotoxingland"
 	origin_tech = "biotech=5;combat=5"
-	alien_powers = list()
+	alien_powers = list(/obj/effect/proc_holder/alien/neurotoxin)
 
 
 /obj/item/organ/internal/alien/eggsac

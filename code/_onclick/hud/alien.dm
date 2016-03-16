@@ -9,16 +9,7 @@
 	if(istype(usr, /mob/living/carbon/alien/humanoid/hunter))
 		var/mob/living/carbon/alien/humanoid/hunter/AH = usr
 		AH.toggle_leap()
-/*
-/obj/screen/alien/crawl
-	name = "toggle crawl"
-	icon_state = "leap_toggle"
 
-obj/screen/alien/crawl/Click()
-	if(istype(usr, /mob/living/carbon/alien/humanoid/runner))
-		var/mob/living/carbon/alien/humanoid/runner/ARUN = usr
-		ARUN.toggle_crawl()
-*/
 /obj/screen/alien/nightvision
 	name = "toggle night-vision"
 	icon_state = "nightvision1"
@@ -102,13 +93,7 @@ obj/screen/alien/crawl/Click()
 		H.leap_icon = new /obj/screen/alien/leap()
 		H.leap_icon.screen_loc = ui_alien_storage_r
 		static_inventory += H.leap_icon
-/*
-	if(istype(mymob, /mob/living/carbon/alien/humanoid/runner))
-		var/mob/living/carbon/alien/humanoid/runner/RUN = mymob
-		RUN.crawl_icon = new /obj/screen/alien/crawl()
-		RUN.crawl_icon.screen_loc = ui_alien_storage_r
-		static_inventory += RUN.crawl_icon
-*/
+
 	using = new /obj/screen/drop()
 	using.icon = 'icons/mob/screen_alien.dmi'
 	using.screen_loc = ui_drop_throw

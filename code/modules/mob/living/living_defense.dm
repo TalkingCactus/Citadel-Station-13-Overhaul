@@ -8,8 +8,7 @@
 			src << "<span class='userdanger'>[penetrated_text]</span>"
 		else
 			src << "<span class='userdanger'>Your armor was penetrated!</span>"
-
-	if(armor >= 100)
+	else if(armor >= 100)
 		if(absorb_text)
 			src << "<span class='userdanger'>[absorb_text]</span>"
 		else
@@ -206,7 +205,7 @@
 		return
 
 	if(M.buckled)
-		if(M == buckled_mob)
+		if(M in buckled_mobs)
 			M.Feedstop()
 		return // can't attack while eating!
 
@@ -287,7 +286,7 @@
 
 	switch(M.a_intent)
 		if ("help")
-			visible_message("<span class='notice'>[M] caresses [src] with its scythe like claws.</span>")
+			visible_message("<span class='notice'>[M] caresses [src] with its scythe like arm.</span>")
 			return 0
 
 		if ("grab")

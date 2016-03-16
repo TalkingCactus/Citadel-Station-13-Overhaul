@@ -1,5 +1,0 @@
-author: TalkingCactus
-delete-after: True
-changes: 
-  - tweak: "A plethora of xenomorph changes! Test them out!"
-  - soundadd: "New file for alien specific sounds located at 'sound/alien/'."

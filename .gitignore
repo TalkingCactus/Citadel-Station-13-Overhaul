@@ -10,5 +10,3 @@
 *.int
 *.backup
 *.int
-config/admins.txt
-config/config.txt

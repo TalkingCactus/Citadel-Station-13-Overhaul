@@ -40,8 +40,8 @@
 
 /obj/structure/table/update_icon()
 	if(smooth)
-		smooth_icon(src)
-		smooth_icon_neighbors(src)
+		queue_smooth(src)
+		queue_smooth_neighbors(src)
 
 /obj/structure/table/ex_act(severity, target)
 	switch(severity)
@@ -68,7 +68,7 @@
 
 /obj/structure/table/attack_alien(mob/living/user)
 	user.do_attack_animation(src)
-	playsound(src.loc, pick('sound/alien/Effects/bang1.ogg', 'sound/alien/Effects/bang2.ogg', 'sound/alien/Effects/bang3.ogg', 'sound/alien/Effects/bang4.ogg', 'sound/alien/Effects/bang5.ogg', 'sound/alien/Effects/bang6.ogg', 'sound/alien/Effects/bang7.ogg', 'sound/alien/Effects/bang8.ogg'), 100, 0, 0)
+	playsound(src.loc, 'sound/weapons/bladeslice.ogg', 50, 1)
 	visible_message("<span class='danger'>[user] slices [src] apart!</span>")
 	table_destroy(1)
 
@@ -91,6 +91,7 @@
 	return 1
 
 /obj/structure/table/attack_hand(mob/living/user)
+	. = ..()
 	user.changeNext_move(CLICK_CD_MELEE)
 	if(tableclimber && tableclimber != user)
 		tableclimber.Weaken(2)

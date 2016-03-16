@@ -2,10 +2,8 @@
 	//Common stuffs for Praetorian and Queen
 	icon = 'icons/mob/alienqueen.dmi'
 	status_flags = 0
-	pass_flags = null
 	ventcrawler = 0 //pull over that ass too fat
 	unique_name = 0
-	heat_protection = 2 //thicker exoskeletons, greater heat protection
 	pixel_x = -16
 	bubble_icon = "alienroyal"
 	mob_size = MOB_SIZE_LARGE
@@ -45,15 +43,12 @@
 	internal_organs += new /obj/item/organ/internal/alien/neurotoxin
 	internal_organs += new /obj/item/organ/internal/alien/eggsac
 	AddSpell(new /obj/effect/proc_holder/spell/aoe_turf/repulse/xeno(src))
-	AddAbility(new/obj/effect/proc_holder/alien/royal/queen/screech())
 	AddAbility(new/obj/effect/proc_holder/alien/royal/queen/promote())
 	..()
 
 /mob/living/carbon/alien/humanoid/royal/queen/movement_delay()
 	. = ..()
 	. += 5
-	if((locate(/obj/structure/alien/weeds) in src.loc) && has_gravity())
-		. -= 1
 
 //Queen verbs
 /obj/effect/proc_holder/alien/lay_egg
@@ -135,34 +130,3 @@
 /obj/item/queenpromote/attack_self(mob/user)
 	user << "<span class='noticealien'>You discard [src].</span>"
 	qdel(src)
-
-/mob/living/carbon/alien/humanoid/royal/queen/MiddleClickOn(atom/A, params, mob/user)
-	face_atom(A)
-	spit_at(A)
-
-/obj/effect/proc_holder/alien/royal/queen/screech
-	name = "Screech"
-	desc = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
-	action_icon_state = "alien_screech"
-	plasma_cost = 350
-
-/obj/effect/proc_holder/alien/royal/queen/screech/fire(mob/living/carbon/alien/humanoid/royal/queen/user)
-	user.visible_message("<span class='alertalien'>[user] emits an ear-splitting screech!!</span>")
-	playsound(user.loc, 'sound/alien/Voice/screech1.ogg', 200, 0, 64)
-	for(var/mob/living/M in get_hearers_in_view(4, user))
-		if(ishuman(M))
-			M.confused += 6
-			M.Jitter(rand(3,5))
-			M.Weaken(rand(3,5))
-			shake_camera(M, 3, strength=2)
-		else if(issilicon(M))
-			M << sound('sound/weapons/flash.ogg')
-			M.Weaken(rand(3,5))
-	for(var/obj/machinery/light/L in range(7, user))
-		if(L.on)
-			L.broken()
-	return 1
-
-/mob/living/carbon/alien/humanoid/royal/queen/MiddleClickOn(atom/A, params, mob/user)
-	face_atom(A)
-	spit_at(A)

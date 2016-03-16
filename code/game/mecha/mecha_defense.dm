@@ -47,10 +47,7 @@
 	user.changeNext_move(CLICK_CD_MELEE) //Now stompy alien killer mechs are actually scary to aliens!
 	user.do_attack_animation(src)
 	if(!prob(src.deflect_chance))
-		if(user.mob_size > 2)
-			take_damage(rand(25,45))
-		else
-			take_damage(rand(15,25))
+		take_damage(15)
 		check_for_internal_damage(list(MECHA_INT_TEMP_CONTROL,MECHA_INT_TANK_BREACH,MECHA_INT_CONTROL_LOST))
 		playsound(src.loc, 'sound/weapons/slash.ogg', 50, 1, -1)
 		visible_message("<span class='danger'>The [user] slashes at [src.name]'s armor!</span>")

@@ -18,8 +18,6 @@
 					matches += "ID ([client.computer_id])"
 					spawn() alert("You have logged in already with another key this round, please log out of this one NOW or risk being banned!")
 				if(matches)
-					if(M.key == "thingpony" || M.key == "tk420634") //no more annoying messages
-						return
 					if(M.client)
 						message_admins("<font color='red'><B>Notice: </B><font color='blue'>[key_name_admin(src)] has the same [matches] as [key_name_admin(M)].</font>")
 						log_access("Notice: [key_name(src)] has the same [matches] as [key_name(M)].")

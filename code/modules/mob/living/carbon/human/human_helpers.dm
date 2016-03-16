@@ -4,10 +4,6 @@
 		return 1
 	if (wear_suit && wear_suit.breakouttime)
 		return 1
-	if (buckled)
-		var/obj/structure/bed/nest/N = buckled
-		if(buckled == N)
-			return 1
 	return 0
 
 /mob/living/carbon/human/canBeHandcuffed()
@@ -157,7 +153,7 @@
 /mob/living/carbon/human/can_use_guns(var/obj/item/weapon/gun/G)
 	. = ..()
 
-	if(G.trigger_guard)
+	if(G.trigger_guard == TRIGGER_GUARD_NORMAL)
 		if(src.dna.check_mutation(HULK))
 			src << "<span class='warning'>Your meaty finger is much too large for the trigger guard!</span>"
 			return 0

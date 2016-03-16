@@ -8,7 +8,6 @@ var/game_version = "/tg/ Station 13"
 var/changelog_hash = ""
 
 var/ooc_allowed = 1	// used with admin verbs to disable ooc - not a config option apparently
-var/looc_allowed = 1 // no more complaining about how you can't use LOOC when OOC is muted
 var/dooc_allowed = 1
 var/abandon_allowed = 1
 var/enter_allowed = 1

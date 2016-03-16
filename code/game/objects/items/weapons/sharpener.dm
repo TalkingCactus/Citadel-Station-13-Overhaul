@@ -1,5 +1,5 @@
 /obj/item/weapon/sharpener
-	name = "sharpening block"
+	name = "whetstone"
 	icon = 'icons/obj/kitchen.dmi'
 	icon_state = "sharpener"
 	desc = "A block that makes things sharp."
@@ -17,7 +17,7 @@
 	if(I.force >= max || I.throwforce >= max)//no esword sharpening
 		user << "<span class='notice'>[I] is much too powerful to sharpen further.</span>"
 		return
-	if(requires_sharpness && I.sharpness != IS_SHARP)
+	if(requires_sharpness && !I.sharpness)
 		user << "<span class='notice'>You can only sharpen items that are already sharp, such as knives.</span>"
 		return
 	if(istype(I, /obj/item/weapon/twohanded))//some twohanded items should still be sharpenable, but handle force differently. therefore i need this stuff
@@ -36,7 +36,8 @@
 		user << "<span class='notice'>[I] has already been refined before. It cannot be sharpened further.</span>"
 		return
 	user.visible_message("<span class='notice'>[user] sharpens [I] with [src]!</span>", "<span class='notice'>You sharpen [I], making it much more deadly than before.</span>")
-	I.sharpness = IS_SHARP//this is only kept here because of super sharpening blocks, it wont do anything with standard since objects should already be sharp
+	if(!requires_sharpness)
+		I.sharpness = IS_SHARP_ACCURATE
 	I.force = Clamp(I.force + increment, 0, max)
 	I.throwforce = Clamp(I.throwforce + increment, 0, max)
 	I.name = "[prefix] [I.name]"
@@ -45,7 +46,7 @@
 	used = 1
 
 /obj/item/weapon/sharpener/super
-	name = "super sharpening block"
+	name = "super whetstone"
 	desc = "A block that will make your weapon sharper than Einstein on adderall."
 	increment = 200
 	max = 200

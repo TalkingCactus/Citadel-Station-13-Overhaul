@@ -322,7 +322,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["socks"]				>> socks
 	S["backbag"]			>> backbag
 	S["feature_mcolor"]					>> features["mcolor"]
-	S["feature_lizard_tail"]			>> features["tail_lizard"]
+	S["feature_tail"]				>> features["tail_furry"]
 	S["feature_lizard_snout"]			>> features["snout"]
 	S["feature_lizard_horns"]			>> features["horns"]
 	S["feature_lizard_frills"]			>> features["frills"]
@@ -353,12 +353,22 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["job_engsec_med"]		>> job_engsec_med
 	S["job_engsec_low"]		>> job_engsec_low
 
+	S["flavor_text"]		>> flavor_text
+
+	//Inside flavour text
+	S["inside_flavour_texts_stomach"]	>> inside_flavour_texts["Stomach"]
+	S["inside_flavour_texts_balls"]		>> inside_flavour_texts["Cock"]
+	S["inside_flavour_texts_womb"]		>> inside_flavour_texts["Womb"]
+	S["inside_flavour_texts_boobs"]		>> inside_flavour_texts["Boob"]
+	S["inside_flavour_texts_tail"]		>> inside_flavour_texts["Tail"]
+
+
 	//try to fix any outdated data if necessary
 	if(needs_update >= 0)
 		update_character(needs_update)		//needs_update == savefile_version if we need an update (positive integer)
 
 	//Sanitize
-	metadata		= sanitize_text(metadata, initial(metadata))
+	flavor_text		= sanitize_text(flavor_text, initial(flavor_text))
 	real_name		= reject_bad_name(real_name)
 	if(!features["mcolor"] || features["mcolor"] == "#000")
 		features["mcolor"] = pick("FFFFFF","7F7F7F", "7FFF7F", "7F7FFF", "FF7F7F", "7FFFFF", "FF7FFF", "FFFF7F")
@@ -438,12 +448,16 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["feature_mcolor"]					<< features["mcolor"]
 	S["feature_lizard_tail"]			<< features["tail_lizard"]
 	S["feature_human_tail"]				<< features["tail_human"]
+	S["feature_furry_tail"]				<< features["tail_furry"]
 	S["feature_lizard_snout"]			<< features["snout"]
 	S["feature_lizard_horns"]			<< features["horns"]
 	S["feature_human_ears"]				<< features["ears"]
 	S["feature_lizard_frills"]			<< features["frills"]
 	S["feature_lizard_spines"]			<< features["spines"]
 	S["feature_lizard_body_markings"]	<< features["body_markings"]
+	S["feature_wings"]					<< features["wings"]
+	S["playerscale"]		<< playerscale
+//	S["special_color"]		<< special_color
 	S["clown_name"]			<< custom_names["clown"]
 	S["mime_name"]			<< custom_names["mime"]
 	S["ai_name"]			<< custom_names["ai"]
@@ -463,12 +477,21 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["job_engsec_med"]		<< job_engsec_med
 	S["job_engsec_low"]		<< job_engsec_low
 
+	S["flavor_text"]		<< flavor_text
+
+	//Inside flavour text
+	S["inside_flavour_texts_stomach"]	<< inside_flavour_texts["Stomach"]
+	S["inside_flavour_texts_balls"]		<< inside_flavour_texts["Cock"]
+	S["inside_flavour_texts_womb"]		<< inside_flavour_texts["Womb"]
+	S["inside_flavour_texts_boobs"]		<< inside_flavour_texts["Boob"]
+	S["inside_flavour_texts_tail"]		<< inside_flavour_texts["Tail"]
+
 	return 1
 
 
 #undef SAVEFILE_VERSION_MAX
 #undef SAVEFILE_VERSION_MIN
-/*
+/
 //DEBUG
 //Some crude tools for testing savefiles
 //path is the savefile path
@@ -479,4 +502,4 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 /client/verb/savefile_import(path as text)
 	var/savefile/S = new /savefile(path)
 	S.ImportText("/",file("[path].txt"))
-*/
+

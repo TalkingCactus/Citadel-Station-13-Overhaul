@@ -29,8 +29,8 @@
 				t_his = "her"
 				t_him = "her"
 
-	msg += "<EM>[src.name]</EM>!\n"
-
+	msg += "<EM>[src.name]</EM>"
+	msg += "!\n"
 	//uniform
 	if(w_uniform && !(slot_w_uniform in obscured))
 		//Ties
@@ -224,13 +224,29 @@
 		msg += "[t_He] looks a little soaked.\n"
 
 
-	if(nutrition < NUTRITION_LEVEL_STARVING - 50)
-		msg += "[t_He] [t_is] severely malnourished.\n"
-	else if(nutrition >= NUTRITION_LEVEL_FAT)
-		if(user.nutrition < NUTRITION_LEVEL_STARVING - 50)
-			msg += "[t_He] [t_is] plump and delicious looking - Like a fat little piggy. A tasty piggy.\n"
-		else
-			msg += "[t_He] [t_is] quite chubby.\n"
+// Vore code stuff is here.
+	if(nutrition < 50) // used to be 100, changed this
+		msg += "[t_He] [t_is] starving! You can hear [t_his] stomach snarling from across the room!\n"
+	else if(nutrition >= 50 && nutrition < 100)
+		msg += "[t_He] [t_is] extremely hungry. A deep growl occasionally rumbles from [t_his] empty stomach.\n"
+	else if(nutrition >= 500 && nutrition < 650)
+		msg += "[t_He] [t_is] bloated with a slightly distended gut.\n"
+	else if(nutrition >= 650 && nutrition < 1000)
+		msg += "[t_He] [t_is] swollen with a big churning belly. You wonder if [t_He] [t_is] digesting someone, or if [t_He] raided a fridge.\n"
+	else if(nutrition >= 1000 && nutrition < 3000)
+		msg += "[t_He] [t_is] stuffed with a huge gurgling stomach! You're almost certain [t_He] [t_is] digesting a whole person inside--maybe two! Either that or [t_He] ate a whole pantry worth of food.\n"
+	else if(nutrition >= 3000 && nutrition < 6000)
+		msg += "[t_his] stomach is firmly packed with loudly churning food. They must have eaten several people, or a whole truckload of food!\n"
+	else if(nutrition >= 6000)
+		msg += "[t_He] [t_is] so gorged, you aren't sure how [t_He] [t_is] able to move. [t_his] belly is dragging across the floor and it doesn't look like [t_He] can get any bigger. [t_his] stomach isn't even squishy anymore and the surface looks sorely strained. [t_He] is either full with most of the crew's digesting remains, or the station's entire food supply!\n"
+//		else
+
+	// For each belly type, print description if someone is inside!
+	for (var/bellytype in src.internal_contents)
+		var/datum/belly/B = internal_contents[bellytype]
+		msg += B.get_examine_msg(t_He, t_his, t_him, t_has, t_is)
+
+	msg += "</span>"
 
 	if(pale)
 		msg += "[t_He] [t_has] pale skin.\n"
@@ -258,9 +274,9 @@
 			if(istype(src,/mob/living/carbon/human/interactive))
 				msg += "<span class='deadsay'>[t_He] [t_is] appears to be some sort of sick automaton, [t_his] eyes are glazed over and [t_his] mouth is slightly agape.</span>\n"
 			else if(!key)
-				msg += "<span class='deadsay'>[t_He] [t_is] totally catatonic. The stresses of life in deep-space must have been too much for [t_him]. Any recovery is unlikely.</span>\n"
+				msg += "<span class='deadsay'>[t_He] [t_is] totally catatonic and thus free game. The stresses of life in deep-space must have been too much for [t_him]. Any recovery is unlikely.</span>\n"
 			else if(!client)
-				msg += "[t_He] [t_has] a vacant, braindead stare...\n"
+				msg += "[t_He] [t_has] a vacant, braindead stare... Well, at least they're still alive.(not free game)\n"
 
 		if(digitalcamo)
 			msg += "[t_He] [t_is] moving [t_his] body in an unnatural and blatantly inhuman manner.\n"
@@ -311,6 +327,9 @@
 						msg += "<a href='?src=\ref[src];hud=s;add_crime=1'>\[Add crime\]</a> "
 						msg += "<a href='?src=\ref[src];hud=s;view_comment=1'>\[View comment log\]</a> "
 						msg += "<a href='?src=\ref[src];hud=s;add_comment=1'>\[Add comment\]</a>\n"
+
+
+	if(print_flavor_text()) msg += "[print_flavor_text()]\n"
 
 	msg += "*---------*</span>"
 

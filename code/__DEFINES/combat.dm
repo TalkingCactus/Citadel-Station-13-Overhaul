@@ -29,13 +29,14 @@
 #define CANWEAKEN	2
 #define CANPARALYSE	4
 #define CANPUSH		8
-#define IGNORESLOWDOWN	16
-#define GOTTAGOFAST	32
-#define GOTTAGOREALLYFAST	64
-#define GODMODE		4096
-#define FAKEDEATH	8192	//Replaces stuff like changeling.changeling_fakedeath
-#define DISFIGURED	16384	//I'll probably move this elsewhere if I ever get wround to writing a bitflag mob-damage system
-#define XENO_HOST	32768	//Tracks whether we're gonna be a baby alien's mummy.
+#define PASSEMOTES	16
+#define IGNORESLOWDOWN	32
+#define GOTTAGOFAST	64
+#define GOTTAGOREALLYFAST	4096
+#define GODMODE		8192
+#define FAKEDEATH	16384	//Replaces stuff like changeling.changeling_fakedeath
+#define DISFIGURED	32768	//I'll probably move this elsewhere if I ever get wround to writing a bitflag mob-damage system
+#define XENO_HOST	1073741824	//Tracks whether we're gonna be a baby alien's mummy.
 
 
 //Grab levels

@@ -8,8 +8,8 @@
 	default_color = "FFFFFF"
 	roundstart = 1
 	specflags = list(EYECOLOR,HAIR,FACEHAIR,LIPS)
-	mutant_bodyparts = list("tail_human", "ears")
-	default_features = list("mcolor" = "FFF", "tail_human" = "None", "ears" = "None")
+	mutant_bodyparts = list("tail_human", "ears", "tail_furry")
+	default_features = list("mcolor" = "FFF", "tail_human" = "None", "ears" = "None", "tail_furry" = "None")
 	use_skintones = 1
 	skinned_type = /obj/item/stack/sheet/animalhide/human
 

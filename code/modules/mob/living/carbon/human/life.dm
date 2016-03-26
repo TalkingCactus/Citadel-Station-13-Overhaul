@@ -46,6 +46,10 @@
 /mob/living/carbon/human/calculate_affecting_pressure(pressure)
 	if((wear_suit && (wear_suit.flags & STOPSPRESSUREDMAGE)) && (head && (head.flags & STOPSPRESSUREDMAGE)))
 		return ONE_ATMOSPHERE
+
+	if(istype(loc, /datum/belly))
+		return ONE_ATMOSPHERE || STOPSPRESSUREDMAGE
+
 	else
 		return pressure
 
@@ -136,6 +140,7 @@
 //This proc returns a number made up of the flags for body parts which you are protected on. (such as HEAD, CHEST, GROIN, etc. See setup.dm for the full list)
 /mob/living/carbon/human/proc/get_heat_protection_flags(temperature) //Temperature is the temperature you're being exposed to.
 	var/thermal_protection_flags = 0
+
 	//Handle normal clothing
 	if(head)
 		if(head.max_heat_protection_temperature && head.max_heat_protection_temperature >= temperature)
@@ -219,6 +224,9 @@
 
 	if(dna.check_mutation(COLDRES))
 		return 1 //Fully protected from the cold.
+
+	if(istype(loc, /datum/belly))
+		return 1
 
 	if(dna && COLDRES in dna.species.specflags)
 		return 1
@@ -317,5 +325,18 @@
 			losebreath += 2
 		adjustOxyLoss(5)
 		adjustBruteLoss(1)
+
+
+// Start vore code. Digestion code is handled here.
+/mob/living/carbon/human/proc/handle_internal_contents()
+	// For each belly type
+	for (var/bellytype in internal_contents)
+		var/datum/belly/B = internal_contents[bellytype]
+		for(var/atom/movable/M in B.internal_contents)
+			if(M.loc != src)
+				B.internal_contents -= M
+				vore_admins("Had to remove [M] from belly [B] in [src]")
+		B.process_Life()
+	//End vore code.
 
 #undef HUMAN_MAX_OXYLOSS

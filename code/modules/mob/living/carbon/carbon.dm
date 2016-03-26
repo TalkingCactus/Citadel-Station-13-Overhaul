@@ -40,28 +40,28 @@
 	if(legcuffed)
 		. += legcuffed.slowdown
 
-/mob/living/carbon/relaymove(mob/user, direction)
-	if(user in src.stomach_contents)
-		if(prob(40))
-			if(prob(25))
-				audible_message("<span class='warning'>You hear something rumbling inside [src]'s stomach...</span>", \
-							 "<span class='warning'>You hear something rumbling.</span>", 4,\
-							  "<span class='userdanger'>Something is rumbling inside your stomach!</span>")
+
+/*
+ * Commented in favor of full Vore code
+/mob/living/carbon/relaymove(var/mob/living/user, direction)
+	if((user in src.stomach_contents) && istype(user))
+		if(user.last_special <= world.time)
+			user.last_special = world.time + 50
+			src.visible_message("<span class='danger'>You hear something rumbling inside [src]'s stomach...</span>")
 			var/obj/item/I = user.get_active_hand()
 			if(I && I.force)
 				var/d = rand(round(I.force / 4), I.force)
 				if(istype(src, /mob/living/carbon/human))
 					var/mob/living/carbon/human/H = src
 					var/organ = H.get_organ("chest")
-					if (istype(organ, /obj/item/organ/limb))
-						var/obj/item/organ/limb/temp = organ
+					if (istype(organ, /datum/organ/external))
+						var/datum/organ/external/temp = organ
 						if(temp.take_damage(d, 0))
-							H.update_damage_overlays(0)
+							H.UpdateDamageIcon()
 					H.updatehealth()
 				else
 					src.take_organ_damage(d)
-				visible_message("<span class='danger'>[user] attacks [src]'s stomach wall with the [I.name]!</span>", \
-									"<span class='userdanger'>[user] attacks your stomach wall with the [I.name]!</span>")
+				user.visible_message("<span class='danger'>[user] attacks [src]'s stomach wall with the [I.name]!</span>")
 				playsound(user.loc, 'sound/effects/attackblob.ogg', 50, 1)
 
 				if(prob(src.getBruteLoss() - 50))
@@ -70,14 +70,41 @@
 						stomach_contents.Remove(A)
 					src.gib()
 
-/mob/living/carbon/gib(animation = 1)
+/mob/living/carbon/gib()
 	for(var/mob/M in src)
-		if(M in stomach_contents)
-			stomach_contents.Remove(M)
-		M.loc = loc
-		visible_message("<span class='danger'>[M] bursts out of [src]!</span>")
-	. = ..()
+		if(M in src.stomach_contents)
+			src.stomach_contents.Remove(M)
+		M.loc = src.loc
+		for(var/mob/N in viewers(src, null))
+			if(N.client)
+				N.show_message(text("\red <B>[M] bursts out of [src]!</B>"), 2)
+	..()
+ */
 
+/mob/living/carbon
+	var/recent_struggle = 0 // To prevent spammage
+
+//Vore code, struggle stuff
+/mob/living/carbon/relaymove(var/mob/user, var/direction)
+	if(recent_struggle) return
+
+	recent_struggle = 1
+	spawn(20)
+		recent_struggle = 0
+
+	for (var/bellytype in src.internal_contents)
+		var/datum/belly/belly = src.internal_contents[bellytype]
+		if (user in belly.internal_contents)
+			belly.relay_struggle(user, direction)
+
+/mob/living/carbon/gib()
+	for(var/mob/M in src)
+		M.loc = src.loc
+		for(var/mob/N in viewers(src, null))
+			if(N.client)
+				N.show_message(text("<span class='danger'>[M] bursts out of [src]!</span>"), 2)
+	. = ..()
+//End vore script.
 
 /mob/living/carbon/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, override = 0, tesla_shock = 0)
 	shock_damage *= siemens_coeff

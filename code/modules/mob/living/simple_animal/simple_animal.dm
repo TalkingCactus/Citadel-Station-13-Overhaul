@@ -55,7 +55,7 @@
 
 
 	//Hot simple_animal baby making vars
-	var/childtype = null
+	var/list/childtype = null
 	var/scan_ready = 1
 	var/species //Sorry, no spider+corgi buttbabies.
 
@@ -87,6 +87,9 @@
 	internal_contents["Stomach"] = new /datum/belly/stomach(src)
 	vorifice = SINGLETON_VORETYPE_INSTANCES["Oral Vore"]
 	// Vore Code End
+
+	if(!loc)
+		stack_trace("Simple animal being instantiated in nullspace")
 
 /mob/living/simple_animal/Login()
 	if(src && src.client)
@@ -504,7 +507,7 @@
 	..()
 
 /mob/living/simple_animal/proc/make_babies() // <3 <3 <3
-	if(gender != FEMALE || stat || !scan_ready || !childtype || !species)
+	if(gender != FEMALE || stat || !scan_ready || !childtype || !species || ticker.current_state != GAME_STATE_PLAYING)
 		return
 	scan_ready = 0
 	spawn(400)
@@ -526,7 +529,8 @@
 			alone = 0
 			continue
 	if(alone && partner && children < 3)
-		new childtype(loc)
+		var/childspawn = pickweight(childtype)
+		new childspawn(loc)
 
 /mob/living/simple_animal/stripPanelUnequip(obj/item/what, mob/who, where, child_override)
 	if(!child_override)

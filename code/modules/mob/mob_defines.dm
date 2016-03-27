@@ -31,6 +31,7 @@
 	var/obj/machinery/machine = null
 	var/other_mobs = null
 	var/memory = ""
+	var/flavor_text = ""
 	var/disabilities = 0	//Carbon
 	var/atom/movable/pulling = null
 	var/next_move = null

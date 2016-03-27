@@ -56,6 +56,7 @@ var/list/preferences_datums = list()
 	var/facial_hair_color = "000"		//Facial hair color
 	var/skin_tone = "caucasian1"		//Skin color
 	var/eye_color = "000"				//Eye color
+	var/playerscale = 1
 	var/datum/species/pref_species = new /datum/species/human()	//Mutant race
 	var/list/features = list("mcolor" = "FFF", "tail_lizard" = "Smooth", "tail_human" = "None", "snout" = "Round", "horns" = "None", "ears" = "None", "frills" = "None", "spines" = "None", "body_markings" = "None")
 
@@ -84,6 +85,9 @@ var/list/preferences_datums = list()
 	var/current_tab = 0
 
 		// OOC Metadata:
+	var/flavor_text = ""
+	var/list/inside_flavour_texts = list()
+//	var/custom_species = null
 	var/metadata = ""
 
 	var/unlock_content = 0
@@ -188,13 +192,21 @@ var/list/preferences_datums = list()
 				dat += "<b>Species:</b><BR><a href='?_src_=prefs;preference=species;task=input'>[pref_species.name]</a><BR>"
 			else
 				dat += "<b>Species:</b> Human<BR>"
-
 			dat += "<b>Blood Type:</b> [blood_type]<BR>"
 			dat += "<b>Underwear:</b><BR><a href ='?_src_=prefs;preference=underwear;task=input'>[underwear]</a><BR>"
 			dat += "<b>Undershirt:</b><BR><a href ='?_src_=prefs;preference=undershirt;task=input'>[undershirt]</a><BR>"
 			dat += "<b>Socks:</b><BR><a href ='?_src_=prefs;preference=socks;task=input'>[socks]</a><BR>"
 			dat += "<b>Backpack:</b><BR><a href ='?_src_=prefs;preference=bag;task=input'>[backbag]</a><BR></td>"
 
+			dat += "<a href='byond://?src=\ref[user];preference=flavor_text;task=input'><b>Set Flavor Text</b></a><br>"
+			if(lentext(flavor_text) <= 40)
+				if(!lentext(flavor_text))
+					dat += "\[...\]"
+				else
+					dat += "[flavor_text]"
+			else
+				dat += "[TextPreview(flavor_text)]...<br>"
+			dat += "<br>"
 			if(pref_species.use_skintones)
 
 				dat += "<td valign='top' width='21%'>"
@@ -666,6 +678,33 @@ var/list/preferences_datums = list()
 					return job_engsec_low
 	return 0
 
+/datum/preferences/proc/SetInsideFlavourText(mob/user)
+	var/HTML = "<body>"
+	HTML += "<tt><center>"
+	HTML += "<b>Set Inside Flavour Text</b> <hr />"
+	HTML += "<br></center>"
+	HTML += "<a href='byond://?src=\ref[user];preference=inside_flavour_text;task=Stomach'>Stomach:</a> "
+	HTML += TextPreview(inside_flavour_texts["Stomach"])
+	HTML += "<br>"
+	HTML += "<a href='byond://?src=\ref[user];preference=inside_flavour_text;task=Cock'>Balls:</a> "
+	HTML += TextPreview(inside_flavour_texts["Cock"])
+	HTML += "<br>"
+	HTML += "<a href='byond://?src=\ref[user];preference=inside_flavour_text;task=Womb'>Womb:</a> "
+	HTML += TextPreview(inside_flavour_texts["Womb"])
+	HTML += "<br>"
+	HTML += "<a href='byond://?src=\ref[user];preference=inside_flavour_text;task=Boob'>Boobs:</a> "
+	HTML += TextPreview(inside_flavour_texts["Boob"])
+	HTML += "<br>"
+	HTML += "<a href='byond://?src=\ref[user];preference=inside_flavour_text;task=Tail'>Tail:</a> "
+	HTML += TextPreview(inside_flavour_texts["Tail"])
+	HTML += "<br>"
+	HTML += "<hr />"
+	HTML +="<a href='?src=\ref[user];preference=inside_flavour_text;task=done'>\[Done\]</a>"
+	HTML += "<tt>"
+	user << browse(null, "window=preferences")
+	user << browse(HTML, "window=inside_flavour_text;size=430x300")
+	return
+
 /datum/preferences/proc/process_link(mob/user, list/href_list)
 	if(href_list["jobbancheck"])
 		var/job = sanitizeSQL(href_list["jobbancheck"])
@@ -764,10 +803,23 @@ var/list/preferences_datums = list()
 					if(new_age)
 						age = max(min( round(text2num(new_age)), AGE_MAX),AGE_MIN)
 
-				if("metadata")
-					var/new_metadata = input(user, "Enter any information you'd like others to see, such as Roleplay-preferences:", "Game Preference" , metadata)  as message|null
-					if(new_metadata)
-						metadata = sanitize(copytext(new_metadata,1,MAX_MESSAGE_LEN))
+				if("flavor_text")
+					var/msg = input(usr,"Set the flavor text in your 'examine' verb. This can also be used for OOC notes and preferences!","Flavor Text",html_decode(flavor_text)) as message
+
+					if(msg != null)
+						msg = copytext(msg, 1, MAX_MESSAGE_LEN)
+						msg = html_encode(msg)
+
+						flavor_text = msg
+
+				if("inside_flavour_text")
+					var/msg = input(usr,"Set the flavor text for your [href_list["task"]].","Inside Flavour Text",html_decode(inside_flavour_texts[href_list["task"]])) as message
+
+					if(msg != null)
+						msg = copytext(msg, 1, MAX_MESSAGE_LEN)
+						msg = html_encode(msg)
+
+						inside_flavour_texts[href_list["task"]] = msg
 
 				if("hair")
 					var/new_hair = input(user, "Choose your character's hair colour:", "Character Preference") as null|color
@@ -1118,6 +1170,13 @@ var/list/preferences_datums = list()
 
 	character.real_name = real_name
 	character.name = character.real_name
+
+//	character.custom_species = custom_species
+
+	character.flavor_text = flavor_text
+	for (var/bellytype in character.internal_contents)
+		var/datum/belly/belly = character.internal_contents[bellytype]
+		belly.inside_flavor = inside_flavour_texts[belly.belly_type]
 
 	character.gender = gender
 	character.age = age

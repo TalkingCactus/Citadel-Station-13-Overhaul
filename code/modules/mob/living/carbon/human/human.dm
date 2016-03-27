@@ -23,6 +23,18 @@
 	dna.initialize_dna()
 
 	//initialise organs
+
+
+		// Vore Code Start
+	// Setup the types of bellies present.
+	internal_contents["Stomach"] = new /datum/belly/stomach(src)
+	internal_contents["Cock"] = new /datum/belly/cock(src)
+	internal_contents["Womb"] = new /datum/belly/womb(src)
+	internal_contents["Boob"] = new /datum/belly/boob(src)
+	internal_contents["Tail"] = new /datum/belly/tail(src)
+	vorifice = SINGLETON_VORETYPE_INSTANCES["Oral Vore"]
+	// Vore Code End
+
 	organs = newlist(/obj/item/organ/limb/chest, /obj/item/organ/limb/head, /obj/item/organ/limb/l_arm,
 					 /obj/item/organ/limb/r_arm, /obj/item/organ/limb/r_leg, /obj/item/organ/limb/l_leg)
 	for(var/obj/item/organ/limb/O in organs)
@@ -37,6 +49,12 @@
 
 	make_blood()
 
+	verbs += /mob/living/carbon/human/proc/orifice_toggle
+	verbs += /mob/living/carbon/human/proc/vore_release.
+//	verbs += /mob/proc/fixtaur // Temporary fix until we unfuck taurs. -Ace
+	verbs += /mob/living/carbon/human/proc/insidePanel
+	verbs += /mob/living/carbon/human/proc/I_am_not_mad // Digestion damage toggle.
+	verbs += /mob/living/carbon/human/proc/regurgitate
 	..()
 
 /mob/living/carbon/human/prepare_data_huds()
@@ -955,3 +973,8 @@
 		if(HM.quality != POSITIVE)
 			dna.remove_mutation(HM.name)
 	..()
+
+/mob/living/carbon/human/proc/get_visible_gender()
+	if(wear_suit && wear_suit.flags_inv & HIDEJUMPSUIT && ((head && head.flags_inv & HIDEMASK) || wear_mask))
+		return NEUTER
+	return gender

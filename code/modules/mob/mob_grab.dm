@@ -122,6 +122,8 @@
 		return
 	if(state == GRAB_UPGRADING)
 		return
+	if(assailant.next_move > world.time)
+		return
 	if(world.time < (last_upgrade + UPGRADE_COOLDOWN))
 		return
 	if(!assailant.canmove || assailant.lying)
@@ -192,28 +194,69 @@
 	return 1
 
 
+//
+//	TODO LESHANA - This is actually kind of backwards.
+// 		Here we define the eating code in the grab object, but that is only one of two says of eating.
+//		Plus it really needs to do a better job of checking if the target is even capable of vore!
+//
+//		Another way to do it is to override attackby() on things that ARE vore-capable, and detect
+//		if they are being attacked by something they can eat (a grab or micro holder)
+//
+//		Rationale: There are potentially many things that can do vore, but only TWO vectors by which
+//		something can be eaten:
+//			A) Attacking with a grab containing an edible item.
+//			B) Attacking with a micro holder.
+//
+//		Things capable of vore are (at least, this list expands):
+//			A) /mob/living/carbon objects
+//			B) /mob/living/simple_animal objects (which unfortunately are not classes as carbon for some reason)
+//
+//		Things capable of being eaten:
+//			A) Anything that can be grabbed
+//			B) Anything contained within a micro holder.
+//
+
+
 /obj/item/weapon/grab/attack(mob/M, mob/user)
 	if(!affecting)
 		return
 
-	if(M == affecting)
-		s_click(hud)
-		return
+	//Vore code swallowing emotes, modifying existing alien vore stuff.
+	if(state >= GRAB_AGGRESSIVE)
+		if( (ishuman(user) && !issilicon(affecting)) || (isalien(user) && !issilicon(affecting)) )
 
-	if(M == assailant && state >= GRAB_AGGRESSIVE)
-		if( (ishuman(user) && (user.disabilities & FAT) && ismonkey(affecting) ) || ( isalien(user) && iscarbon(affecting) ) )
-			var/mob/living/carbon/attacker = user
-			user.visible_message("<span class='danger'>[user] is attempting to devour [affecting]!</span>")
-			if(istype(user, /mob/living/carbon/alien/humanoid/hunter))
-				if(!do_mob(user, affecting, 60)) return
+			// Alright, let's see if we can get this to work for feeding others as well as yourself - NW
+			// Refactored to use centralized vore code system - Leshana
+
+			var/mob/living/carbon/human/attacker = user  // Typecast to human
+
+			// If you click yourself...
+			if(M == assailant)
+				if (is_vore_predator(user))
+					// Feed what you're holding (affecting) to yourself (user)
+					var/datum/voretype/vore_type = attacker.vorifice
+					if (vore_type.feed_grabbed_to_self(user, affecting)) del(src)
+				else
+					vore_admins("[attacker] attempted to feed [affecting] to [user] ([user.type]) but it is not predator-capable")
+
+			// If you click your target...
+			if(M == affecting)
+				if (is_vore_predator(affecting))
+					// Feed yourself (user) to what you're holding (affecting)!
+					var/datum/voretype/vore_type = attacker.vorifice  // Attacker's choice of what vorifice
+					if (vore_type.feed_self_to_grabbed(user, affecting)) del(src)
+				else
+					vore_admins("[attacker] attempted to feed [user] to [affecting] ([affecting.type]) but it is not predator-capable")
+
+			// If you click someone else...
 			else
-				if(!do_mob(user, affecting, 130)) return
-			user.visible_message("<span class='danger'>[user] devours [affecting]!</span>")
-			affecting.loc = user
-			attacker.stomach_contents.Add(affecting)
-			qdel(src)
-
-	add_logs(user, affecting, "attempted to put", src, "into [M]")
+				// Feed what you're holding (affecting) to what you clicked (M)
+				if (is_vore_predator(M))
+					var/datum/voretype/vore_type = M:vorifice
+					if (vore_type.feed_grabbed_to_other(user, affecting, M)) del(src)
+				else
+					vore_admins("[attacker] attempted to feed [affecting] to [M] ([M.type]) but it is not predator-capable")
+	//End vore code.
 
 /obj/item/weapon/grab/dropped()
 	..()

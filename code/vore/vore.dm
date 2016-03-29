@@ -255,7 +255,7 @@
 
 	return dat;
 
-/datum/tgui/proc/vore_look(href, href_list)
+/datum/vore_look/proc/ui_interaction(href, href_list)
 //	log_debug("vore_look.Topic([href])")
 	if(href_list["look"])
 		// TODO - This probably should be ATOM not mob/living
@@ -304,3 +304,70 @@
 /proc/vore_admins(var/msg)
 	msg = "<span class=\"admin\"><span class=\"prefix\">ADMIN LOG:</span> <span class=\"message\">[msg]</span></span>"
 	admins << msg
+
+
+//vore vomit stuff, might be handy. Also was just an ayylmao power. No Human_power tho
+/mob/living/carbon/human/proc/regurgitate()
+	set name = "Regurgitate"
+	set desc = "Empties the contents of your stomach and/or tail"
+	set category = "Vore"
+
+	// Vore Code Begin
+	var/datum/belly/B = internal_contents["Stomach" || "Tail"]
+	if (B.release_all_contents())
+		src.visible_message("\red <B>[src] hurls out the contents of their stomach!</B>")
+	// Vore Code End
+	return
+
+/mob/living/carbon/human/proc/ejaculate(var/distance = 0, var/message = 1, var/mob/owner, var/atom/movable/M)
+	set name = "Ejaculate"
+	set desc = "Empties from your sexual organs"
+	set category = "Vore"
+
+	if(prob(50))
+		if(prob(55))
+			visible_message("<span class='warning'>[src] groans and shivers!</span>", \
+							"<span class='userdanger'>You feel the urge but not the need.</span>")
+		if(prob(15))
+			Stun(5)
+	else
+		if(message)
+			visible_message("<span class='danger'>[src] suddenly orgasms!</span>", \
+							"<span class='userdanger'>You orgasm!</span>")
+		playsound(get_turf(src), 'sound/effects/splat.ogg', 50, 1)
+		var/turf/T = get_turf(src)
+		for(var/i=0 to distance)
+			if("Womb" || owner.gender == "female")
+				var/datum/belly/B = internal_contents["Womb"]
+				B.release_all_contents()
+				if(T)
+					T.add_femjuice_floor(src)
+					M.loc = owner.loc
+
+			else
+				T.add_femjuice_floor(src)
+
+			if("Cock" || owner.gender == "male")
+				var/datum/belly/B = internal_contents["Cock"]
+				B.release_all_contents()
+				if(T)
+					T.add_semen_floor(src)
+					M.loc = owner.loc
+
+			else
+				T.add_semen_floor(src)
+
+			if("Breast")
+				var/datum/belly/B = internal_contents["Breast"]
+				B.release_all_contents()
+				if(T)
+					T.add_milk_floor(src)
+					M.loc = owner.loc
+
+			else
+				T.add_milk_floor(src)
+
+			T = get_step(T, dir)
+			if (is_blocked_turf(T))
+				break
+	return 1

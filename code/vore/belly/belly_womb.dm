@@ -8,6 +8,7 @@
 	inside_flavor = "Generic womb description"
 	milk_type="femjuice"
 	assoc_fluid="femjuice"
+	oxygen=1
 
 
 // @Override
@@ -25,7 +26,7 @@
 			owner << "<span class='notice'>You will now digest people you've unbirthed.</span>"
 		if("Hold")
 			owner << "<span class='notice'>You will now harmlessly hold people you've unbirthed.</span>"
-		if("Transform (Male)")
+/*		if("Transform (Male)")
 			owner << "<span class='notice'>You will now transform people you've unbirthed into your son.</span>"
 		if("Transform (Female)")
 			owner << "<span class='notice'>You will now transform people you've unbirthed into your daughter.</span>"
@@ -33,17 +34,20 @@
 			owner << "<span class='notice'>You will now transform people you've unbirthed, but they will keep their gender.</span>"
 		if("Transform (Change Species)")
 			owner << "<span class='notice'>You will now transform people you've unbirthed to look similar to your species.</span>"
-
+*/
 // @Override
 /datum/belly/womb/process_Life()
 	for(var/mob/living/M in internal_contents)
 		//WOMB HEAL
+		if(oxygen)
+			M.setOxyLoss(0, 0)
 		if(iscarbon(M) && owner.stat != DEAD && digest_mode == DM_HEAL && M.stat != DEAD)
 			if(SSair.times_fired%3==1)
 				if(!(M.status_flags & GODMODE))
 					if(owner.nutrition > 90)
-						M.adjustBruteLoss(-3)
-						M.adjustFireLoss(-3)
+						M.adjustBruteLoss(-1, 0)
+						M.adjustFireLoss(-1, 0)
+						M.adjustOxyLoss(-5, 0)
 						owner.nutrition -= 2
 						if(M.nutrition <= 400)
 							M.nutrition += 1
@@ -63,8 +67,9 @@
 
 			if(SSair.times_fired%3==1)
 				if(!(M.status_flags & GODMODE))
-					M.adjustBruteLoss(2)
-					M.adjustFireLoss(3)
+					M.adjustBruteLoss(2, 0)
+					M.adjustFireLoss(3, 0)
+/*
 
 		//WOMB TRANSFORM (FEM)
 		if(ishuman(M) && ishuman(owner) && owner.stat != DEAD && digest_mode == "Transform (Female)" && M.stat != DEAD)
@@ -219,3 +224,4 @@
 						O.nutrition -= 2
 					if(P.nutrition < 400)
 						P.nutrition += 1
+*/

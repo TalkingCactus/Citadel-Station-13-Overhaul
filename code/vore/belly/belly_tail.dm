@@ -6,6 +6,7 @@
 	belly_type = "Tail"
 	belly_name = "tail"
 	inside_flavor = "Generic tail description"
+	oxygen=1
 
 // @Override
 /datum/belly/tail/get_examine_msg(t_He, t_his, t_him, t_has, t_is)
@@ -24,7 +25,8 @@
 			var/mob/living/carbon/human/R = M
 			if(!R.digestable)
 				continue
-
+		if(oxygen)
+			M.setOxyLoss(0, 0)
 		if(owner.stat != DEAD && digest_mode == DM_DIGEST) // For some reason this can't be checked in the if statement below.
 			if(iscarbon(M) || isanimal(M)) // If human or simple mob and you're set to digest.
 				if(M.stat == DEAD)

@@ -34,6 +34,7 @@
 	var/escape=1
 	var/integrity=100
 	var/exterior=0
+	var/oxygen=1
 	var/datum/vore_organ/transfer_target=null
 	assume_air
 
@@ -57,9 +58,12 @@
 		/obj/item/clothing/shoes/magboots,
 		/obj/item/areaeditor/blueprints,
 		/obj/item/clothing/head/helmet/space,
-		/obj/item/weapon/storage/internal
-	)
-
+		/obj/item/weapon/storage/internal,
+		/obj/item/weapon/reagent_containers/hypospray/CMO,
+		/obj/item/clothing/tie/medal/gold/captain,
+		/obj/item/nuke_core,
+		/obj/item/documents,
+		/obj/item/weapon/storage/backpack/holding)
 
 // Constructor that sets the owning mob
 // @Override
@@ -232,8 +236,10 @@
 		if(istype(I, T))
 			return 0
 	return 1
-
+/*
 /mob/living/carbon/proc/ejaculate(var/stun = 1, var/distance = 0, var/message = 1, var/mob/owner, var/atom/movable/M)
+	set name = "Ejaculate"
+	set category = "Vore"
 
 	if(prob(50))
 		if(prob(55))
@@ -248,7 +254,7 @@
 		playsound(get_turf(src), 'sound/effects/splat.ogg', 50, 1)
 		var/turf/T = get_turf(src)
 		for(var/i=0 to distance)
-			if("Womb")
+			if("Womb" || owner.gender == "female")
 				if(T)
 					T.add_femjuice_floor(src)
 					Stun(2)
@@ -257,7 +263,7 @@
 			else
 				T.add_femjuice_floor(src)
 
-			if("Cock")
+			if("Cock" || owner.gender == "male")
 				if(T)
 					T.add_semen_floor(src)
 					Stun(2)
@@ -270,3 +276,5 @@
 			if (is_blocked_turf(T))
 				break
 	return 1
+
+	*/

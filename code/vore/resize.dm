@@ -46,7 +46,7 @@ var/const/RESIZE_A_SMALLTINY = (RESIZE_SMALL + RESIZE_TINY) / 2
 
 //Seem to have removed resize_by_item proc, which was necessary for shrink rays and such to work.
 
-/* Ace was here! Redid this a little so we'd use math for shrinking characters. This is the old code.
+/* =
 /mob/living/proc/set_size()
 	set name = "Set character size"
 	set category = "Resize"

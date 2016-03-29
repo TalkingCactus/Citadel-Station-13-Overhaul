@@ -6,6 +6,7 @@
 	belly_type = "Simple"
 	belly_name = "insides"
 	inside_flavor = "There is nothing interesting about these insides."
+	oxygen=1
 
 	var/emoteBetween = 200 					//How long between belly emotes
 	var/emoteAfter = 0						//Holder for next emote allowed time
@@ -30,7 +31,8 @@
 // @Override
 /datum/belly/simple/process_Life()
 	for (var/mob/living/M in internal_contents)
-
+		if(oxygen)
+			M.setOxyLoss(0, 0)
 		if (animal.stat != DEAD && digest_mode == DM_DIGEST && M.digestable) //What to do if being digested
 			if (iscarbon(M) || isanimal(M))
 

@@ -392,16 +392,3 @@
 	set category = "IC"
 
 	flavor_text =  copytext(sanitize(input(usr, "Please enter your new flavour text.", "Flavour text", null)  as text), 1)
-
-//vore vomit stuff, might be handy. Also was just an ayylmao power. No Human_power tho
-/mob/living/carbon/human/proc/regurgitate()
-	set name = "Regurgitate"
-	set desc = "Empties the contents of your stomach"
-	set category = "Vore"
-
-	// Vore Code Begin
-	var/datum/belly/B = internal_contents["Stomach"]
-	if (B.release_all_contents())
-		src.visible_message("\red <B>[src] hurls out the contents of their stomach!</B>")
-	// Vore Code End
-	return

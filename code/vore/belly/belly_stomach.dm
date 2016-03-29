@@ -25,6 +25,8 @@
 			var/mob/living/carbon/human/R = M
 			if (!R.digestable)
 				continue
+		if(oxygen)
+			M.setOxyLoss(0, 0)
 
 		if (owner.stat != DEAD && digest_mode == DM_DIGEST) //According to vore.dm, stendo being true means people should digest. // also: For some reason this can't be checked in the if statement below.
 			if (iscarbon(M) || isanimal(M)) // If human or simple mob and you're set to digest.
@@ -155,8 +157,8 @@
 								M << sound('sound/vore/digest12.ogg')
 					//	M.adjustBruteLoss(2)
 						M.adjustFireLoss(2)
-						var/difference = owner.playerscale / M.playerscale 	// LOOK HOW FUCKING CLEVER I AM.
-						owner.nutrition += 10/difference 					// I AM SO PROUD OF MYSELF. -Ace 	 PROUD OF YOU -NW.
+						var/difference = owner.playerscale / M.playerscale
+						owner.nutrition += 10/difference
 
 
 // @Override

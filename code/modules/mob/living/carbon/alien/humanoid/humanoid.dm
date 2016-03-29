@@ -17,7 +17,6 @@
 //This is fine right now, if we're adding organ specific damage this needs to be updated
 /mob/living/carbon/alien/humanoid/New()
 
-	verbs += /mob/living/carbon/alien/proc/regurgitate
 
 /mob/living/carbon/alien/humanoid/movement_delay()
 	. = ..()

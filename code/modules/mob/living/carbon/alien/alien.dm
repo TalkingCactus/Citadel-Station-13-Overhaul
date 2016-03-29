@@ -56,12 +56,15 @@
 	verbs += /mob/living/proc/mob_sleep
 	verbs += /mob/living/proc/lay_down
 
+	internal_contents["Stomach"] = new /datum/belly/stomach(src)
+	vorifice = SINGLETON_VORETYPE_INSTANCES["Oral Vore"]
 	internal_organs += new /obj/item/organ/internal/brain/alien
 	internal_organs += new /obj/item/organ/internal/alien/hivenode
 	for(var/obj/item/organ/internal/I in internal_organs)
 		I.Insert(src)
 
 	AddAbility(new/obj/effect/proc_holder/alien/nightvisiontoggle(null))
+	verbs += /mob/living/carbon/alien/proc/regurgitate
 	..()
 
 /mob/living/carbon/alien/assess_threat() // beepsky won't hunt aliums

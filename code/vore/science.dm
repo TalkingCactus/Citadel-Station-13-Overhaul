@@ -2,7 +2,7 @@ datum/design/shrinkray
 	name = "Shrink Ray"
 	desc = "Make people small."
 	id = "shrinkray"
-	req_tech = list("combat" = 5, "materials" = 3, "engineering" = 2, "biotech" = 3)
+	req_tech = list("combat" = 5, "materials" = 3, "engineering" = 3, "biotech" = 3)
 	build_type = PROTOLATHE
 	materials = list("$metal" = 5000, "$glass" = 1000, "$diamond" = 1500)
 	build_path = /obj/item/weapon/gun/energy/laser/sizeray/one
@@ -59,16 +59,16 @@ datum/design/stethoscope_advanced
 	projectile_type = /obj/item/projectile/sizeray/shrinkray
 	select_name = "blueray"
 
-/obj/item/projectile/sizeray/shrinkray/on_hit(var/atom/target, var/blocked = 0)
-	if(istype(target, /mob/living))
-		var/mob/living/M=target
-		M.sizeplay_shrink()
+/obj/item/projectile/sizeray/shrinkray/on_hit(var/atom/target, var/blocked = 0, var/mob/living/carbon/M as mob)
+	for(var/size in list(RESIZE_BIG, RESIZE_NORMAL, RESIZE_SMALL, RESIZE_TINY))
+		if(M.playerscale > size)
+			M.resize(size)
 	return 1
 
-/obj/item/projectile/sizeray/growthray/on_hit(var/atom/target, var/blocked = 0)
-	if(istype(target, /mob/living))
-		var/mob/living/M=target
-		M.sizeplay_grow()
+/obj/item/projectile/sizeray/growthray/on_hit(var/atom/target, var/blocked = 0, var/mob/living/carbon/M as mob)
+	for(var/size in list(RESIZE_SMALL, RESIZE_NORMAL, RESIZE_BIG, RESIZE_HUGE))
+		if(M.playerscale < size)
+			M.resize(size)
 	return 1
 
 
@@ -81,30 +81,8 @@ datum/design/stethoscope_advanced
 	desc = "This will be fun!"
 	ammo_type = list(/obj/item/ammo_casing/energy/laser/shrinkray)
 	origin_tech = "combat=1;magnets=2"
-	clumsy_check = 0
-	var/charge_tick = 0
-
-	//special_check(var/mob/living/carbon/human/M)
-		//return 1
-
-	New()
-		..()
-		SSobj.processing |= src
-
-
-	Destroy()
-		SSobj.processing.Remove(src)
-		..()
-
-
-	process()
-		charge_tick++
-		if(charge_tick < 4) return 0
-		charge_tick = 0
-		if(!power_supply) return 0
-		power_supply.give(100)
-		update_icon()
-		return 1
+	selfcharge = 1
+	charge_delay = 5
 
 	attackby(obj/item/W, mob/user)
 		if(W==src)

@@ -51,15 +51,18 @@
 				return
 
 			playsound(loc, "rustle", 50, 1, -5)
-			switch(over_object.name)
-				if("r_hand")
-					if(!M.unEquip(src))
-						return
-					M.put_in_r_hand(src)
-				if("l_hand")
-					if(!M.unEquip(src))
-						return
-					M.put_in_l_hand(src)
+
+
+			if(istype(over_object, /obj/screen/inventory/hand))
+				var/obj/screen/inventory/hand/H = over_object
+				if(!M.unEquip(src))
+					return
+				switch(H.slot_id)
+					if(slot_r_hand)
+						M.put_in_r_hand(src)
+					if(slot_l_hand)
+						M.put_in_l_hand(src)
+
 			add_fingerprint(usr)
 
 //Check if this storage can dump the items
@@ -306,7 +309,7 @@
 
 		add_fingerprint(usr)
 
-		if(!prevent_warning && !istype(W, /obj/item/weapon/gun/energy/kinetic_accelerator/crossbow))
+		if(!prevent_warning)
 			for(var/mob/M in viewers(usr, null))
 				if(M == usr)
 					usr << "<span class='notice'>You put [W] [preposition]to [src].</span>"
@@ -363,18 +366,22 @@
 //This proc is called when you want to place an item into the storage item.
 /obj/item/weapon/storage/attackby(obj/item/W, mob/user, params)
 	..()
-
+	. = 1 //no afterattack
 	if(isrobot(user))
-		user << "<span class='warning'>You're a robot. No.</span>"
-		return 0	//Robots can't interact with storage items.
+		return	//Robots can't interact with storage items.
 
 	if(!can_be_inserted(W, 0 , user))
-		return 0
+		return
 
 	handle_item_insertion(W, 0 , user)
-	return 1
+
 
 /obj/item/weapon/storage/attack_hand(mob/user)
+	if(user.s_active == src && loc == user) //if you're already looking inside the storage item
+		user.s_active.close(user)
+		close(user)
+		return
+
 	playsound(loc, "rustle", 50, 1, -5)
 
 	if(ishuman(user))
@@ -458,14 +465,14 @@
 	boxes.layer = 19
 	closer = new /obj/screen/close()
 	closer.master = src
-	closer.icon_state = "x"
+	closer.icon_state = "backpack_close"
 	closer.layer = 20
 	orient2hud()
 
 
 /obj/item/weapon/storage/Destroy()
-	var/turf = get_turf(src)
-	empty_object_contents(0, turf)
+	for(var/obj/O in contents)
+		O.mouse_opacity = initial(O.mouse_opacity)
 
 	close_all()
 	qdel(boxes)

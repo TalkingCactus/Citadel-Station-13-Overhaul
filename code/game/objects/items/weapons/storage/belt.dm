@@ -29,7 +29,9 @@
 		/obj/item/stack/cable_coil,
 		/obj/item/device/t_scanner,
 		/obj/item/device/analyzer,
-		/obj/item/weapon/extinguisher/mini
+		/obj/item/weapon/extinguisher/mini,
+		/obj/item/device/radio,
+		/obj/item/clothing/gloves/
 		)
 
 /obj/item/weapon/storage/belt/utility/full/New()
@@ -76,7 +78,9 @@
 		/obj/item/weapon/extinguisher/mini,
 		/obj/item/weapon/reagent_containers/hypospray,
 		/obj/item/device/rad_laser,
-		/obj/item/device/sensor_device
+		/obj/item/device/sensor_device,
+		/obj/item/device/radio,
+		/obj/item/clothing/gloves/
 		)
 
 
@@ -90,8 +94,7 @@
 	can_hold = list(
 		/obj/item/weapon/melee/baton,
 		/obj/item/weapon/melee/classic_baton,
-		/obj/item/weapon/grenade/flashbang,
-		/obj/item/weapon/grenade/chem_grenade/teargas,
+		/obj/item/weapon/grenade,
 		/obj/item/weapon/reagent_containers/spray/pepper,
 		/obj/item/weapon/restraints/handcuffs,
 		/obj/item/device/assembly/flash/handheld,
@@ -102,7 +105,9 @@
 		/obj/item/weapon/reagent_containers/food/snacks/donut/jelly,
 		/obj/item/weapon/kitchen/knife/combat,
 		/obj/item/device/flashlight/seclite,
-		/obj/item/weapon/melee/classic_baton/telescopic
+		/obj/item/weapon/melee/classic_baton/telescopic,
+		/obj/item/device/radio,
+		/obj/item/clothing/gloves/
 		)
 
 /obj/item/weapon/storage/belt/security/full/New()
@@ -146,6 +151,13 @@
 	desc = "A syndicate belt designed to be used by boarding parties.  Its style is modeled after the hardsuits they wear."
 	icon_state = "militarybelt"
 	item_state = "military"
+	max_w_class = 3
+
+/obj/item/weapon/storage/belt/military/army
+	name = "army belt"
+	desc = "A belt used by military forces."
+	icon_state = "grenadebeltold"
+	item_state = "security"
 
 /obj/item/weapon/storage/belt/military/assault
 	name = "assault belt"
@@ -154,6 +166,51 @@
 	item_state = "security"
 	storage_slots = 6
 
+/obj/item/weapon/storage/belt/grenade
+	name = "grenadier belt"
+	desc = "A belt for holding grenades."
+	icon_state = "grenadebeltnew"
+	item_state = "security"
+	max_w_class = 4
+	storage_slots = 30
+	can_hold = list(
+		/obj/item/weapon/grenade,
+		/obj/item/weapon/screwdriver,
+		/obj/item/weapon/lighter,
+		/obj/item/device/multitool,
+		/obj/item/weapon/reagent_containers/food/drinks/bottle/molotov,
+		/obj/item/weapon/c4,
+		)
+/obj/item/weapon/storage/belt/grenade/full/New()
+	..()
+	new /obj/item/weapon/grenade/flashbang(src)
+	new /obj/item/weapon/grenade/smokebomb(src)
+	new /obj/item/weapon/grenade/smokebomb(src)
+	new /obj/item/weapon/grenade/smokebomb(src)
+	new /obj/item/weapon/grenade/smokebomb(src)
+	new /obj/item/weapon/grenade/empgrenade(src)
+	new /obj/item/weapon/grenade/empgrenade(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/syndieminibomb/concussion/frag(src)
+	new /obj/item/weapon/grenade/gluon(src)
+	new /obj/item/weapon/grenade/gluon(src)
+	new /obj/item/weapon/grenade/gluon(src)
+	new /obj/item/weapon/grenade/gluon(src)
+	new /obj/item/weapon/grenade/chem_grenade/incendiary(src)
+	new /obj/item/weapon/grenade/chem_grenade/incendiary(src)
+	new /obj/item/weapon/grenade/chem_grenade/facid(src)
+	new /obj/item/weapon/grenade/syndieminibomb(src)
+	new /obj/item/weapon/grenade/syndieminibomb(src)
+	new /obj/item/weapon/screwdriver(src)
+	new /obj/item/device/multitool(src)
 
 /obj/item/weapon/storage/belt/wands
 	name = "wand belt"
@@ -186,13 +243,14 @@
 	storage_slots = 6
 	max_w_class = 4 // Set to this so the  light replacer can fit.
 	can_hold = list(
-		/obj/item/weapon/grenade/chem_grenade/cleaner,
+		/obj/item/weapon/grenade/chem_grenade,
 		/obj/item/device/lightreplacer,
 		/obj/item/device/flashlight,
 		/obj/item/weapon/reagent_containers/spray,
 		/obj/item/weapon/soap,
 		/obj/item/weapon/holosign_creator,
-		/obj/item/key/janitor
+		/obj/item/key/janitor,
+		/obj/item/clothing/gloves/
 		)
 
 /obj/item/weapon/storage/belt/bandolier
@@ -200,14 +258,14 @@
 	desc = "A bandolier for holding shotgun ammunition."
 	icon_state = "bandolier"
 	item_state = "bandolier"
-	storage_slots = 8
+	storage_slots = 18
 	can_hold = list(
 		/obj/item/ammo_casing/shotgun
 		)
 
 /obj/item/weapon/storage/belt/holster
 	name = "shoulder holster"
-	desc = "A holster to conceal a carried handgun and ammo. WARNING: Badasses only."
+	desc = "A holster to carry a handgun and ammo. WARNING: Badasses only."
 	icon_state = "holster"
 	item_state = "holster"
 	storage_slots = 3

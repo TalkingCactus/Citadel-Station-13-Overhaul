@@ -22,19 +22,10 @@
 	randomize_human(src)
 	dna.initialize_dna()
 
+	if(dna.species)
+		set_species(dna.species.type)
+
 	//initialise organs
-
-
-		// Vore Code Start
-	// Setup the types of bellies present.
-	internal_contents["Stomach"] = new /datum/belly/stomach(src)
-	internal_contents["Cock"] = new /datum/belly/cock(src)
-	internal_contents["Womb"] = new /datum/belly/womb(src)
-	internal_contents["Boob"] = new /datum/belly/boob(src)
-	internal_contents["Tail"] = new /datum/belly/tail(src)
-	vorifice = SINGLETON_VORETYPE_INSTANCES["Oral Vore"]
-	// Vore Code End
-
 	organs = newlist(/obj/item/organ/limb/chest, /obj/item/organ/limb/head, /obj/item/organ/limb/l_arm,
 					 /obj/item/organ/limb/r_arm, /obj/item/organ/limb/r_leg, /obj/item/organ/limb/l_leg)
 	for(var/obj/item/organ/limb/O in organs)
@@ -44,17 +35,15 @@
 	internal_organs += new /obj/item/organ/internal/heart
 	internal_organs += new /obj/item/organ/internal/brain
 
+	//Note: Additional organs are generated/replaced on the dna.species level
+
 	for(var/obj/item/organ/internal/I in internal_organs)
 		I.Insert(src)
 
 	make_blood()
 
-	verbs += /mob/living/carbon/human/proc/orifice_toggle
-	verbs += /mob/living/carbon/human/proc/vore_release.
-//	verbs += /mob/proc/fixtaur // Temporary fix until we unfuck taurs. -Ace
-	verbs += /mob/living/carbon/human/proc/insidePanel
-	verbs += /mob/living/carbon/human/proc/I_am_not_mad // Digestion damage toggle.
-	verbs += /mob/living/carbon/human/proc/regurgitate
+	martial_art = default_martial_art
+
 	..()
 
 /mob/living/carbon/human/prepare_data_huds()
@@ -179,6 +168,7 @@
 			return ..()
 		if(!src.lying && dna && !dna.check_mutation(HULK)) //But only if they're not lying down, and hulks can't do it
 			src.visible_message("<span class='danger'>[src] deflects the projectile; they can't be hit with ranged weapons!</span>", "<span class='userdanger'>You deflect the projectile!</span>")
+			playsound(src, pick("sound/weapons/bulletflyby.ogg","sound/weapons/bulletflyby2.ogg","sound/weapons/bulletflyby3.ogg"), 75, 1)
 			return 0
 	..()
 
@@ -834,6 +824,10 @@
 	staticOverlay.override = 1
 	staticOverlays["letter"] = staticOverlay
 
+	staticOverlay = getRandomAnimalImage(src)
+	staticOverlay.override = 1
+	staticOverlays["animal"] = staticOverlay
+
 /mob/living/carbon/human/cuff_resist(obj/item/I)
 	if(dna && dna.check_mutation(HULK))
 		say(pick(";RAAAAAAAARGH!", ";HNNNNNNNNNGGGGGGH!", ";GWAAAAAAAARRRHHH!", "NNNNNNNNGGGGGGGGHH!", ";AAAAAAARRRGH!" ))
@@ -967,14 +961,13 @@
 	if(!getorganslot("lungs"))
 		var/obj/item/organ/internal/lungs/L = new()
 		L.Insert(src)
+	if(!getorganslot("tongue"))
+		var/obj/item/organ/internal/tongue/T = new()
+		T.Insert(src)
 	restore_blood()
 	remove_all_embedded_objects()
+	drunkenness = 0
 	for(var/datum/mutation/human/HM in dna.mutations)
 		if(HM.quality != POSITIVE)
 			dna.remove_mutation(HM.name)
 	..()
-
-/mob/living/carbon/human/proc/get_visible_gender()
-	if(wear_suit && wear_suit.flags_inv & HIDEJUMPSUIT && ((head && head.flags_inv & HIDEMASK) || wear_mask))
-		return NEUTER
-	return gender

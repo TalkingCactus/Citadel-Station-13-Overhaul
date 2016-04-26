@@ -185,12 +185,15 @@ var/next_external_rsc = 0
 	else if (isnum(player_age) && player_age < config.notify_new_player_age)
 		message_admins("New user: [key_name_admin(src)] just connected with an age of [player_age] day[(player_age==1?"":"s")]")
 
+	findJoinDate()
+
 	sync_client_with_db()
 
 	send_resources()
 
 	if(!void)
 		void = new()
+		void = void.MakeGreed()
 
 	screen += void
 
@@ -324,6 +327,7 @@ var/next_external_rsc = 0
 		sleep(1)
 	else
 		sleep(5)
+		stoplag()
 
 //send resources to the client. It's here in its own proc so we can move it around easiliy if need be
 /client/proc/send_resources()

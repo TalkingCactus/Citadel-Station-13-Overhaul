@@ -1,7 +1,7 @@
 /obj/item/device/chameleon
 	name = "chameleon-projector"
 	icon_state = "shield0"
-	flags = CONDUCT
+	flags = CONDUCT | NOBLUDGEON
 	slot_flags = SLOT_BELT
 	item_state = "electronic"
 	throwforce = 5
@@ -113,7 +113,7 @@
 	master.disrupt()
 
 /obj/effect/dummy/chameleon/relaymove(mob/user, direction)
-	if(istype(loc, /turf/space) || !direction)
+	if(istype(loc, /turf/open/space) || !direction)
 		return //No magical space movement!
 
 	if(can_move)

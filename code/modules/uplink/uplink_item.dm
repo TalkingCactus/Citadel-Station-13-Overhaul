@@ -24,6 +24,9 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 					continue
 				if(gamemode && (gamemode in I.exclude_modes))
 					continue
+			if(I.player_minimum && I.player_minimum > joined_player_list.len)
+				continue
+
 			if(!filtered_uplink_items[category])
 				filtered_uplink_items[category] = list()
 			filtered_uplink_items[category][item] = I
@@ -46,6 +49,7 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 	var/surplus = 100 // Chance of being included in the surplus crate.
 	var/list/include_modes = list() // Game modes to allow this item in.
 	var/list/exclude_modes = list() // Game modes to disallow this item from.
+	var/player_minimum //The minimum crew size needed for this item to be added to uplinks.
 
 /datum/uplink_item/proc/spawn_item(turf/loc, obj/item/device/uplink/U)
 	if(item)
@@ -175,6 +179,14 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 	surplus = 0
 	include_modes = list(/datum/game_mode/nuclear)
 
+/datum/uplink_item/dangerous/grenadier
+	name = "Grenadier's belt"
+	desc = "A belt of a large variety of lethally dangerous and destructive grenades."
+	item = /obj/item/weapon/storage/belt/grenade/full
+	include_modes = list(/datum/game_mode/nuclear)
+	cost = 22
+	surplus = 0
+
 /datum/uplink_item/dangerous/sniper
 	name = "Sniper Rifle"
 	desc = "Ranged fury, Syndicate style. guaranteed to cause shock and awe or your TC back!"
@@ -296,6 +308,7 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 	item = /obj/item/weapon/storage/box/syndie_kit/guardian
 	cost = 12
 	exclude_modes = list(/datum/game_mode/nuclear, /datum/game_mode/gang)
+	player_minimum = 25
 
 // Ammunition
 /datum/uplink_item/ammo
@@ -443,12 +456,6 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 			Can pierce walls and multiple enemies."
 	item = /obj/item/ammo_box/magazine/sniper_rounds/penetrator
 	cost = 5
-
-/datum/uplink_item/ammo/sniper/accelerator
-	name = ".50 Accelerator Magazine"
-	desc = "A 5-round magazine of accelerator ammo designed for use with .50 sniper rifles. \
-			The shot is weak at close range, but gains more power the farther it flies."
-	item = /obj/item/ammo_box/magazine/sniper_rounds/accelerator
 
 /datum/uplink_item/ammo/toydarts
 	name = "Box of Riot Darts"
@@ -632,12 +639,15 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 	item = /obj/item/clothing/shoes/chameleon
 	cost = 2
 	exclude_modes = list(/datum/game_mode/nuclear)
+	player_minimum = 25
 
 /datum/uplink_item/stealthy_tools/syndigaloshes/nuke
-	name = "Tactical No-Slip Chameleon Shoes"
-	desc = "These allow you to run on wet floors. They do not work on heavily lubricated surfaces, but the \
-			manufacturer guarantees they're somehow better than the normal ones."
+	name = "Stealthy No-Slip Chameleon Shoes"
+	desc = "These shoes will allow the wearer to run on wet floors and slippery objects without falling down. \
+			They do not work on heavily lubricated surfaces. The manufacturer claims they are much more stealthy than the normal brand."
+	item = /obj/item/clothing/shoes/chameleon
 	cost = 4
+	exclude_modes = list()
 	include_modes = list(/datum/game_mode/nuclear)
 
 /datum/uplink_item/stealthy_tools/agent_card
@@ -703,6 +713,7 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 /datum/uplink_item/suits
 	category = "Space Suits and Hardsuits"
 	exclude_modes = list(/datum/game_mode/gang)
+	surplus = 40
 
 /datum/uplink_item/suits/space_suit
 	name = "Syndicate Space Suit"
@@ -854,11 +865,10 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 	cost = 10
 
 /datum/uplink_item/device_tools/singularity_beacon
-	name = "Singularity Beacon"
+	name = "Power Beacon"
 	desc = "When screwed to wiring attached to an electric grid and activated, this large device pulls any \
-			active gravitational singularities towards it. This will not work when the singularity is still \
-			in containment. A singularity beacon can cause catastrophic damage to a space station, \
-			leading to an emergency evacuation. Because of its size, it cannot be carried. Ordering this \
+			active gravitational singularities or tesla balls towards it. This will not work when the engine is still \
+			in containment. Because of its size, it cannot be carried. Ordering this \
 			sends you a small beacon that will teleport the larger beacon to your location upon activation."
 	item = /obj/item/device/sbeacondrop
 	cost = 14
@@ -950,6 +960,7 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 			cocktail which has a mild healing effect along with removing all stuns and increasing movement speed."
 	item = /obj/item/weapon/storage/box/syndie_kit/imp_adrenal
 	cost = 8
+	player_minimum = 25
 
 /datum/uplink_item/implants/storage
 	name = "Storage Implant"
@@ -1071,6 +1082,7 @@ var/list/uplink_items = list() // Global list so we only initialize this once.
 			but you never know. Contents are sorted to always be worth 50 TC."
 	item = /obj/structure/closet/crate
 	cost = 20
+	player_minimum = 25
 	exclude_modes = list(/datum/game_mode/nuclear, /datum/game_mode/gang)
 
 /datum/uplink_item/badass/surplus/spawn_item(turf/loc, obj/item/device/uplink/U)

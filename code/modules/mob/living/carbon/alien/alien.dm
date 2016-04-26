@@ -29,42 +29,18 @@
 	gib_type = /obj/effect/decal/cleanable/xenoblood/xgibs
 	unique_name = 1
 
-	var/isPredator = 1 					//Are they capable of performing and pre-defined vore actions for their species?
-	var/datum/belly/insides				//The place where food goes. Just one on mobs.
-	var/list/prey_excludes = list()		//For excluding people from being eaten.
-
-	//We have some default emotes for mobs to do to their prey.
-	var/list/stomach_emotes = list(
-									"The insides knead at you gently for a moment.",
-									"The guts glorp wetly around you as some air shifts.",
-									"Your predator takes a deep breath and sighs, shifting you somewhat.",
-									"The stomach squeezes you tight for a moment, then relaxes.",
-									"During a moment of quiet, breathing becomes the most audible thing.",
-									"The warm slickness surrounds and kneads on you.")
-	var/list/stomach_emotes_d = list(
-									"The caustic acids eat away at your form.",
-									"The acrid air burns at your lungs.",
-									"Without a thought for you, the stomach grinds inwards painfully.",
-									"The guts treat you like food, squeezing to press more acids against you.",
-									"The onslaught against your body doesn't seem to be letting up; you're food now.",
-									"The insides work on you like they would any other food.")
-	var/list/digest_emotes = list(
-									"Your mortal form gives out, sustaining this member of the hive.",
-									"Your body oozes through the rest of the xenomorph, consumed entirely.")
-
 /mob/living/carbon/alien/New()
 	verbs += /mob/living/proc/mob_sleep
 	verbs += /mob/living/proc/lay_down
 
-	internal_contents["Stomach"] = new /datum/belly/stomach(src)
-	vorifice = SINGLETON_VORETYPE_INSTANCES["Oral Vore"]
 	internal_organs += new /obj/item/organ/internal/brain/alien
 	internal_organs += new /obj/item/organ/internal/alien/hivenode
+	internal_organs += new /obj/item/organ/internal/tongue/alien
+
 	for(var/obj/item/organ/internal/I in internal_organs)
 		I.Insert(src)
 
 	AddAbility(new/obj/effect/proc_holder/alien/nightvisiontoggle(null))
-	verbs += /mob/living/carbon/alien/proc/regurgitate
 	..()
 
 /mob/living/carbon/alien/assess_threat() // beepsky won't hunt aliums

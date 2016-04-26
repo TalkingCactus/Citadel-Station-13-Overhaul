@@ -100,6 +100,9 @@
 //Presets for item actions
 /datum/action/item_action
 	check_flags = AB_CHECK_RESTRAINED|AB_CHECK_STUNNED|AB_CHECK_LYING|AB_CHECK_CONSCIOUS
+	button_icon_state = null
+	// If you want to override the normal icon being the item
+	// then change this to an icon state
 
 /datum/action/item_action/New(Target)
 	..()
@@ -121,7 +124,12 @@
 
 /datum/action/item_action/ApplyIcon(obj/screen/movable/action_button/current_button)
 	current_button.overlays.Cut()
-	if(target)
+
+	if(button_icon && button_icon_state)
+		// If set, use the custom icon that we set instead
+		// of the item appereance
+		..(current_button)
+	else if(target)
 		var/obj/item/I = target
 		var/old = I.layer
 		I.layer = FLOAT_LAYER //AAAH
@@ -215,8 +223,17 @@
 /datum/action/item_action/toggle_helmet
 	name = "Toggle Helmet"
 
-/datum/action/item_action/jetpack_mode
-	name = "Jetpack Mode"
+/datum/action/item_action/toggle_jetpack
+	name = "Toggle Jetpack"
+
+/datum/action/item_action/jetpack_stabilization
+	name = "Toggle Jetpack Stabilization"
+
+/datum/action/item_action/jetpack_stabilization/IsAvailable()
+	var/obj/item/weapon/tank/jetpack/J = target
+	if(!istype(J) || !J.on)
+		return 0
+	return ..()
 
 /datum/action/item_action/hands_free
 	check_flags = AB_CHECK_CONSCIOUS

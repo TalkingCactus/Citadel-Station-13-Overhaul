@@ -53,7 +53,6 @@
 
 	var/speed = 1 //LETS SEE IF I CAN SET SPEEDS FOR SIMPLE MOBS WITHOUT DESTROYING EVERYTHING. Higher speed is slower, negative speed is faster
 
-
 	//Hot simple_animal baby making vars
 	var/list/childtype = null
 	var/scan_ready = 1
@@ -82,12 +81,6 @@
 	verbs -= /mob/verb/observe
 	if(!real_name)
 		real_name = name
-	// Vore Code Start
-		// Setup the types of bellies present.
-	internal_contents["Stomach"] = new /datum/belly/stomach(src)
-	vorifice = SINGLETON_VORETYPE_INSTANCES["Oral Vore"]
-	// Vore Code End
-
 	if(!loc)
 		stack_trace("Simple animal being instantiated in nullspace")
 
@@ -108,17 +101,6 @@
 			handle_automated_action()
 			handle_automated_speech()
 		return 1
-
-	// Start vore code. Digestion code is handled here.
-	// For each belly type
-	for (var/bellytype in internal_contents)
-		var/datum/belly/B = internal_contents[bellytype]
-		for(var/mob/living/M in B.internal_contents)
-			if(M.loc != src)
-				B.internal_contents -= M
-				vore_admins("Had to remove [M] from belly [B] in [src]")
-		B.process_Life()
-	//End vore code.
 
 /mob/living/simple_animal/update_stat()
 	if(status_flags & GODMODE)
@@ -224,8 +206,8 @@
 			//world << "changed from [bodytemperature] by [diff] to [bodytemperature + diff]"
 			bodytemperature += diff
 
-		if(istype(T,/turf/simulated))
-			var/turf/simulated/ST = T
+		if(istype(T,/turf/open))
+			var/turf/open/ST = T
 			if(ST.air)
 				var/ST_gases = ST.air.gases
 				ST.air.assert_gases(arglist(hardcoded_gases))
@@ -295,7 +277,7 @@
 	if(stat)
 		return
 	if(act == "scream")
-		message = "makes a loud and pained whimper" //ugly hack to stop animals screaming when crushed :P
+		message = "makes a loud and pained whimper." //ugly hack to stop animals screaming when crushed :P
 		act = "me"
 	..(act, m_type, message)
 
@@ -415,13 +397,6 @@
 		adjustBruteLoss(damage)
 		updatehealth()
 
-
-/mob/living/simple_animal/attackby(obj/item/O, mob/living/user, params) //Marker -Agouri
-	if(O.flags & NOBLUDGEON)
-		return
-
-	..()
-
 /mob/living/simple_animal/movement_delay()
 	. = ..()
 
@@ -515,7 +490,7 @@
 	var/alone = 1
 	var/mob/living/simple_animal/partner
 	var/children = 0
-	for(var/mob/M in oview(7, src))
+	for(var/mob/M in view(7, src))
 		if(M.stat != CONSCIOUS) //Check if it's concious FIRSTER.
 			continue
 		else if(istype(M, childtype)) //Check for children FIRST.

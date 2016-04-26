@@ -25,55 +25,28 @@
 		qdel(dna)
 	return ..()
 
-/mob/living/carbon/Move(NewLoc, direct)
-	. = ..()
-	if(.)
-		if(src.nutrition && src.stat != 2)
-			src.nutrition -= HUNGER_FACTOR/10
-			if(src.m_intent == "run")
-				src.nutrition -= HUNGER_FACTOR/10
-		if((src.disabilities & FAT) && src.m_intent == "run" && src.bodytemperature <= 360)
-			src.bodytemperature += 2
-
-
-/mob/living/carbon/Process_Spacemove(movement_dir = 0)
-	if(..())
-		return 1
-	if(!isturf(loc)) // In a mecha? A locker? Who knows!
-		return 0
-
-	var/obj/item/weapon/tank/jetpack/J = get_jetpack()
-	if(istype(J) && J.allow_thrust(0.01, src))
-		return 1
-
-
-/mob/living/carbon/movement_delay()
-	. = ..()
-	if(legcuffed)
-		. += legcuffed.slowdown
-
-
-/*
- * Commented in favor of full Vore code
-/mob/living/carbon/relaymove(var/mob/living/user, direction)
-	if((user in src.stomach_contents) && istype(user))
-		if(user.last_special <= world.time)
-			user.last_special = world.time + 50
-			src.visible_message("<span class='danger'>You hear something rumbling inside [src]'s stomach...</span>")
+/mob/living/carbon/relaymove(mob/user, direction)
+	if(user in src.stomach_contents)
+		if(prob(40))
+			if(prob(25))
+				audible_message("<span class='warning'>You hear something rumbling inside [src]'s stomach...</span>", \
+							 "<span class='warning'>You hear something rumbling.</span>", 4,\
+							  "<span class='userdanger'>Something is rumbling inside your stomach!</span>")
 			var/obj/item/I = user.get_active_hand()
 			if(I && I.force)
 				var/d = rand(round(I.force / 4), I.force)
 				if(istype(src, /mob/living/carbon/human))
 					var/mob/living/carbon/human/H = src
 					var/organ = H.get_organ("chest")
-					if (istype(organ, /datum/organ/external))
-						var/datum/organ/external/temp = organ
+					if (istype(organ, /obj/item/organ/limb))
+						var/obj/item/organ/limb/temp = organ
 						if(temp.take_damage(d, 0))
-							H.UpdateDamageIcon()
+							H.update_damage_overlays(0)
 					H.updatehealth()
 				else
 					src.take_organ_damage(d)
-				user.visible_message("<span class='danger'>[user] attacks [src]'s stomach wall with the [I.name]!</span>")
+				visible_message("<span class='danger'>[user] attacks [src]'s stomach wall with the [I.name]!</span>", \
+									"<span class='userdanger'>[user] attacks your stomach wall with the [I.name]!</span>")
 				playsound(user.loc, 'sound/effects/attackblob.ogg', 50, 1)
 
 				if(prob(src.getBruteLoss() - 50))
@@ -93,39 +66,12 @@
 			I.throw_at_fast(get_edge_target_turf(src,pick(alldirs)),rand(1,3),5)
 
 	for(var/mob/M in src)
-		if(M in src.stomach_contents)
-			src.stomach_contents.Remove(M)
-		M.loc = src.loc
-		for(var/mob/N in viewers(src, null))
-			if(N.client)
-				N.show_message(text("\red <B>[M] bursts out of [src]!</B>"), 2)
-	..()
- */
-
-/mob/living/carbon
-	var/recent_struggle = 0 // To prevent spammage
-
-//Vore code, struggle stuff
-/mob/living/carbon/relaymove(var/mob/user, var/direction)
-	if(recent_struggle) return
-
-	recent_struggle = 1
-	spawn(20)
-		recent_struggle = 0
-
-	for (var/bellytype in src.internal_contents)
-		var/datum/belly/belly = src.internal_contents[bellytype]
-		if (user in belly.internal_contents)
-			belly.relay_struggle(user, direction)
-
-/mob/living/carbon/gib()
-	for(var/mob/M in src)
-		M.loc = src.loc
-		for(var/mob/N in viewers(src, null))
-			if(N.client)
-				N.show_message(text("<span class='danger'>[M] bursts out of [src]!</span>"), 2)
+		if(M in stomach_contents)
+			stomach_contents.Remove(M)
+		M.loc = loc
+		visible_message("<span class='danger'>[M] bursts out of [src]!</span>")
 	. = ..()
-//End vore script.
+
 
 /mob/living/carbon/electrocute_act(shock_damage, obj/source, siemens_coeff = 1, override = 0, tesla_shock = 0)
 	shock_damage *= siemens_coeff
@@ -165,13 +111,12 @@
 				usr << "<span class='warning'>Your other hand is too busy holding the [item_in_hand.name]</span>"
 				return
 	src.hand = !( src.hand )
-	if(hud_used.l_hand_hud_object && hud_used.r_hand_hud_object)
-		if(hand)	//This being 1 means the left hand is in use
-			hud_used.l_hand_hud_object.icon_state = "hand_l_active"
-			hud_used.r_hand_hud_object.icon_state = "hand_r_inactive"
-		else
-			hud_used.l_hand_hud_object.icon_state = "hand_l_inactive"
-			hud_used.r_hand_hud_object.icon_state = "hand_r_active"
+	if(hud_used && hud_used.inv_slots[slot_l_hand] && hud_used.inv_slots[slot_r_hand])
+		var/obj/screen/inventory/hand/H
+		H = hud_used.inv_slots[slot_l_hand]
+		H.update_icon()
+		H = hud_used.inv_slots[slot_r_hand]
+		H.update_icon()
 	/*if (!( src.hand ))
 		src.hands.dir = NORTH
 	else
@@ -389,13 +334,6 @@
 	else if(prob(50))
 		return "trails_1"
 	return "trails_2"
-
-var/const/NO_SLIP_WHEN_WALKING = 1
-var/const/SLIDE = 2
-var/const/GALOSHES_DONT_HELP = 4
-/mob/living/carbon/slip(s_amount, w_amount, obj/O, lube)
-	add_logs(src,, "slipped",, "on [O ? O.name : "floor"]")
-	return loc.handle_slip(src, s_amount, w_amount, O, lube)
 
 /mob/living/carbon/fall(forced)
     loc.handle_fall(src, forced)//it's loc so it doesn't call the mob's handle_fall which does nothing

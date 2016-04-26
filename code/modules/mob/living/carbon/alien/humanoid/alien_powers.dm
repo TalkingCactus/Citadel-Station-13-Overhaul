@@ -49,7 +49,7 @@ Doesn't work on other aliens/AI.*/
 		if(!silent)
 			user << "<span class='noticealien'>Not enough plasma stored.</span>"
 		return 0
-	if(check_turf && (!isturf(user.loc) || istype(user.loc, /turf/space)))
+	if(check_turf && (!isturf(user.loc) || istype(user.loc, /turf/open/space)))
 		if(!silent)
 			user << "<span class='noticealien'>Bad place for a garden!</span>"
 		return 0
@@ -139,14 +139,14 @@ Doesn't work on other aliens/AI.*/
 				user << "<span class='noticealien'>You cannot dissolve this object.</span>"
 				return 0
 		// TURF CHECK
-		else if(istype(target, /turf/simulated))
+		else if(istype(target, /turf))
 			var/turf/T = target
 			// R WALL
-			if(istype(T, /turf/simulated/wall/r_wall))
+			if(istype(T, /turf/closed/wall/r_wall))
 				user << "<span class='noticealien'>You cannot dissolve this object.</span>"
 				return 0
 			// R FLOOR
-			if(istype(T, /turf/simulated/floor/engine))
+			if(istype(T, /turf/open/floor/engine))
 				user << "<span class='noticealien'>You cannot dissolve this object.</span>"
 				return 0
 		else// Not a type we can acid.
@@ -226,20 +226,22 @@ Doesn't work on other aliens/AI.*/
 	choice = structures[choice]
 	new choice(user.loc)
 	return 1
-/*
+
 /obj/effect/proc_holder/alien/regurgitate
 	name = "Regurgitate"
 	desc = "Empties the contents of your stomach"
 	plasma_cost = 0
 	action_icon_state = "alien_barf"
-*/
-/mob/living/carbon/alien/proc/regurgitate(mob/living/carbon/user)
-	name = "Regurgitate"
-	// Vore Code Begin
-	var/datum/belly/B = internal_contents["Stomach"]
-	if (B.release_all_contents())
-		src.visible_message("\red <B>[user] hurls out the contents of their stomach!</B>")
-	// Vore Code End
+
+/obj/effect/proc_holder/alien/regurgitate/fire(mob/living/carbon/user)
+	if(user.stomach_contents.len)
+		for(var/atom/movable/A in user.stomach_contents)
+			user.stomach_contents.Remove(A)
+			A.loc = user.loc
+			if(isliving(A))
+				var/mob/M = A
+				M.reset_perspective()
+		user.visible_message("<span class='alertealien'>[user] hurls out the contents of their stomach!</span>")
 	return
 
 /obj/effect/proc_holder/alien/nightvisiontoggle

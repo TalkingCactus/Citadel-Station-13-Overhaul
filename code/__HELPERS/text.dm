@@ -70,7 +70,7 @@
 			if(62,60,92,47)
 				return			//rejects the text if it contains these bad characters: <, >, \ or /
 			if(127 to 255)
-				return			//rejects weird letters like ?
+				return			//rejects weird letters like �
 			if(0 to 31)
 				return			//more weird stuff
 			if(32)
@@ -425,16 +425,3 @@ var/list/binary = list("0","1")
 	. = list()
 	for(var/x in 1 to length(t))
 		. += copytext(t,x,x+1)
-
-//Used in preferences' SetFlavorText and human's set_flavor verb
-//Previews a string of len or less length
-/proc/copytext_preserve_html(var/text, var/first, var/last)
-	return html_encode(copytext(html_decode(text), first, last))
-proc/TextPreview(var/string,var/len=40)
-	if(lentext(string) <= len)
-		if(!lentext(string))
-			return "\[...\]"
-		else
-			return string
-	else
-		return "[copytext(string, 1, 37)]..."

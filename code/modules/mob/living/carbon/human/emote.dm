@@ -384,11 +384,3 @@
 		dna.species.mutant_bodyparts -= "waggingtail_human"
 		dna.species.mutant_bodyparts |= "tail_human"
 	update_body()
-
-
-/mob/living/carbon/human/verb/set_flavor()
-	set name = "Set Flavour Text"
-	set desc = "Sets an extended description of your character's features."
-	set category = "IC"
-
-	flavor_text =  copytext(sanitize(input(usr, "Please enter your new flavour text.", "Flavour text", null)  as text), 1)

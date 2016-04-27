@@ -72,6 +72,7 @@
 	desc = "Looks like some cables tied together. Could be used to tie something up."
 	icon_state = "cuff_red"
 	item_state = "coil_red"
+	materials = list(MAT_METAL=150, MAT_GLASS=75)
 	breakouttime = 300 //Deciseconds = 30s
 	cuffsound = 'sound/weapons/cablecuff.ogg'
 	var/datum/robot_energy_storage/wirestorage = null
@@ -159,6 +160,8 @@
 			if(!remove_item_from_storage(user))
 				user.unEquip(src)
 			qdel(src)
+	else
+		return ..()
 
 /obj/item/weapon/restraints/handcuffs/cable/zipties/cyborg/attack(mob/living/carbon/C, mob/user)
 	if(isrobot(user))
@@ -179,6 +182,7 @@
 	name = "zipties"
 	desc = "Plastic, disposable zipties that can be used to restrain temporarily but are destroyed after use."
 	icon_state = "cuff_white"
+	materials = list()
 	breakouttime = 450 //Deciseconds = 45s
 	trashtype = /obj/item/weapon/restraints/handcuffs/cable/zipties/used
 

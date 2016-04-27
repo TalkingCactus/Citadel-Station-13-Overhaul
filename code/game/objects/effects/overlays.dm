@@ -73,6 +73,19 @@
 /obj/effect/overlay/temp/guardian/phase/out
 	icon_state = "phaseout"
 
+/obj/effect/overlay/temp/decoy
+	desc = "It's a decoy!"
+	duration = 15
+
+/obj/effect/overlay/temp/decoy/New(loc, atom/mimiced_atom)
+	..()
+	alpha = initial(alpha)
+	if(mimiced_atom)
+		name = mimiced_atom.name
+		appearance = mimiced_atom.appearance
+		dir = mimiced_atom.dir
+	animate(src, alpha = 0, time = duration)
+
 /obj/effect/overlay/temp/cult
 	randomdir = 0
 	duration = 10
@@ -81,12 +94,20 @@
 	name = "maw of Nar-Sie"
 	icon_state = "sacconsume"
 
+/obj/effect/overlay/temp/cult/door
+	name = "unholy glow"
+	icon_state = "doorglow"
+	layer = 3.17 //above closed doors
+
+/obj/effect/overlay/temp/cult/door/unruned
+	icon_state = "unruneddoorglow"
+
 /obj/effect/overlay/temp/cult/turf
 	name = "unholy glow"
 	icon_state = "wallglow"
 	layer = TURF_LAYER + 0.07
 
-/obj/effect/overlay/temp/cult/turf/floor
+/obj/effect/overlay/temp/cult/turf/open/floor
 	icon_state = "floorglow"
 	duration = 5
 

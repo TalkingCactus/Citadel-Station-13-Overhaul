@@ -23,6 +23,7 @@
 	var/obj/item/seeds/myseed = null	//The currently planted seed
 	var/rating = 1
 	var/unwrenchable = 1
+	var/recent_bee_visit = FALSE //Have we been visited by a bee recently, so bees dont overpolinate one plant
 
 	pixel_y=8
 
@@ -74,9 +75,10 @@
 	if(istype(I, /obj/item/weapon/crowbar))
 		if(anchored==2)
 			user << "Unscrew the hoses first!"
+		else if(default_deconstruction_crowbar(I, 1))
 			return
-		default_deconstruction_crowbar(I, 1)
-	..()
+	else
+		return ..()
 
 /obj/machinery/hydroponics/proc/FindConnected()
 	var/list/connected = list()
@@ -243,8 +245,9 @@
 		update_icon_plant()
 		update_icon_lights()
 
-	if(istype(myseed, /obj/item/seeds/glowshroom))
-		SetLuminosity(round(myseed.potency / 10))
+	if(myseed && myseed.get_gene(/datum/plant_gene/trait/glow))
+		var/datum/plant_gene/trait/glow/G = myseed.get_gene(/datum/plant_gene/trait/glow)
+		SetLuminosity(G.get_lum(myseed))
 	else
 		SetLuminosity(0)
 
@@ -349,12 +352,7 @@
 /obj/machinery/hydroponics/proc/mutate(lifemut = 2, endmut = 5, productmut = 1, yieldmut = 2, potmut = 25) // Mutates the current seed
 	if(!myseed)
 		return
-	myseed.adjust_lifespan(rand(-lifemut,lifemut))
-	myseed.adjust_endurance(rand(-endmut,endmut))
-	myseed.adjust_production(rand(-productmut,productmut))
-	myseed.adjust_yield(rand(-yieldmut,yieldmut))
-	myseed.adjust_potency(rand(-potmut,potmut))
-
+	myseed.mutate(lifemut, endmut, productmut, yieldmut, potmut)
 
 /obj/machinery/hydroponics/proc/hardmutate()
 	mutate(4, 10, 2, 4, 50)
@@ -716,7 +714,7 @@
 			reagent_source.update_icon()
 		return 1
 
-	else if(istype(O, /obj/item/seeds))
+	else if(istype(O, /obj/item/seeds) && !istype(O, /obj/item/seeds/sample))
 		if(!myseed)
 			if(istype(O, /obj/item/seeds/kudzu))
 				investigate_log("had Kudzu planted in it by [user.ckey]([user]) at ([x],[y],[z])","kudzu")
@@ -804,8 +802,8 @@
 
 			for(var/obj/machinery/hydroponics/h in range(1,src))
 				h.update_icon()
-
-	return
+	else
+		return ..()
 
 /obj/machinery/hydroponics/attack_hand(mob/user)
 	if(istype(user, /mob/living/silicon))		//How does AI know what plant is?
@@ -865,6 +863,7 @@
 	var/mob/living/simple_animal/hostile/C = new chosen
 	C.faction = list("plants")
 
+
 ///////////////////////////////////////////////////////////////////////////////
 /obj/machinery/hydroponics/soil //Not actually hydroponics at all! Honk!
 	name = "soil"
@@ -881,7 +880,8 @@
 	return // Has no lights
 
 /obj/machinery/hydroponics/soil/attackby(obj/item/O, mob/user, params)
-	..()
 	if(istype(O, /obj/item/weapon/shovel))
 		user << "<span class='notice'>You clear up [src]!</span>"
 		qdel(src)
+	else
+		return ..()

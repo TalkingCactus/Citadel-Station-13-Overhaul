@@ -7,6 +7,9 @@
 		spellremove(src)
 	for(var/infection in viruses)
 		qdel(infection)
+	for(var/cc in client_colours)
+		qdel(cc)
+	client_colours = null
 	ghostize()
 	return ..()
 
@@ -316,18 +319,14 @@ var/next_mob_id = 0
 
 	if(!src || !isturf(src.loc) || !(A in view(src.loc)))
 		return 0
-	if(istype(A, /obj/effect/decal/point))
+	if(istype(A, /obj/effect/overlay/temp/point))
 		return 0
 
 	var/tile = get_turf(A)
 	if (!tile)
 		return 0
 
-	var/obj/P = new /obj/effect/decal/point(tile)
-	P.invisibility = invisibility
-	spawn (20)
-		if(P)
-			qdel(P)
+	PoolOrNew(/obj/effect/overlay/temp/point, list(tile,invisibility))
 
 	return 1
 
@@ -442,32 +441,6 @@ var/next_mob_id = 0
 	if (popup)
 		memory()
 
-/mob/proc/update_flavor_text()
-	set src in usr
-	if(usr != src)
-		usr << "No."
-	var/msg = input(usr,"Set the flavor text in your 'examine' verb. Can also be used for OOC notes about your character.","Flavor Text",html_decode(flavor_text)) as message|null
-
-	if(msg != null)
-		msg = copytext(msg, 1, MAX_MESSAGE_LEN)
-		msg = html_encode(msg)
-
-		flavor_text = msg
-
-/mob/proc/warn_flavor_changed()
-	if(flavor_text && flavor_text != "") // don't spam people that don't use it!
-		src << "<h2 class='alert'>OOC Warning:</h2>"
-		src << "<span class='alert'>Your flavor text is likely out of date! <a href='byond://?src=\ref[src];flavor_change=1'>Change</a></span>"
-
-/mob/proc/print_flavor_text()
-	if (flavor_text && flavor_text != "")
-		var/msg = replacetext(flavor_text, "\n", " ")
-		if(lentext(msg) <= 40)
-			return "\blue [msg]"
-		else
-			return "\blue [copytext(msg, 1, 37)]... <a href='byond://?src=\ref[src];flavor_more=1'>More...</a>"
-
-
 /mob/verb/abandon_mob()
 	set name = "Respawn"
 	set category = "OOC"
@@ -544,12 +517,6 @@ var/next_mob_id = 0
 		unset_machine()
 		src << browse(null, t1)
 
-	if(href_list["flavor_more"])
-		usr << browse(text("<HTML><HEAD><TITLE>[]</TITLE></HEAD><BODY><TT>[]</TT></BODY></HTML>", name, replacetext(flavor_text, "\n", "<BR>")), text("window=[];size=500x200", name))
-		onclose(usr, "[name]")
-	if(href_list["flavor_change"])
-		update_flavor_text()
-
 	if(href_list["refresh"])
 		if(machine && in_range(src, usr))
 			show_inv(machine)
@@ -616,21 +583,10 @@ var/next_mob_id = 0
 		if (nextmap && istype(nextmap))
 			stat(null, "Next Map: [nextmap.friendlyname]")
 		stat(null, "Server Time: [time2text(world.realtime, "YYYY-MM-DD hh:mm")]")
-		var/ETA
-		switch(SSshuttle.emergency.mode)
-			if(SHUTTLE_RECALL)
-				ETA = "RCL"
-			if(SHUTTLE_CALL)
-				ETA = "ETA"
-			if(SHUTTLE_DOCKED)
-				ETA = "ETD"
-			if(SHUTTLE_ESCAPE)
-				ETA = "ESC"
-			if(SHUTTLE_STRANDED)
-				ETA = "ERR"
+
+		var/ETA = SSshuttle.emergency.getModeStr()
 		if(ETA)
-			var/timeleft = SSshuttle.emergency.timeLeft()
-			stat(null, "[ETA]-[(timeleft / 60) % 60]:[add_zero(num2text(timeleft % 60), 2)]")
+			stat(null, "[ETA] [SSshuttle.emergency.getTimerStr()]")
 
 
 	if(client && client.holder)

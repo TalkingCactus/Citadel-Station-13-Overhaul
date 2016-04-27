@@ -20,11 +20,14 @@
 	if(naut)
 		naut.factory = null
 		naut << "<span class='userdanger'>Your factory was destroyed! You feel yourself dying!</span>"
+		naut.throw_alert("nofactory", /obj/screen/alert/nofactory)
 	spores = null
 	return ..()
 
 /obj/effect/blob/factory/Be_Pulsed()
 	. = ..()
+	if(naut)
+		return
 	if(spores.len >= max_spores)
 		return
 	if(spore_delay > world.time)

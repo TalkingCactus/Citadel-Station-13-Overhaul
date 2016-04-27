@@ -14,6 +14,7 @@ var/list/blacklisted_tesla_types = list(/obj/machinery/atmospherics,
 										/obj/structure/particle_accelerator/end_cap,
 										/obj/machinery/field/containment,
 										/obj/structure/disposalpipe,
+										/obj/structure/sign,
 										/obj/machinery/gateway)
 
 /obj/singularity/energy_ball
@@ -79,9 +80,12 @@ var/list/blacklisted_tesla_types = list(/obj/machinery/atmospherics,
 	var/first_move = dir
 	for(var/i in 0 to move_amount)
 		var/move_dir = pick(alldirs + first_move) //give the first move direction a bit of favoring.
+		if(target && prob(60))
+			move_dir = get_dir(src,target)
 		var/turf/T = get_step(src, move_dir)
 		if(can_move(T))
 			loc = T
+
 
 /obj/singularity/energy_ball/proc/handle_energy()
 	if(energy >= energy_to_raise)

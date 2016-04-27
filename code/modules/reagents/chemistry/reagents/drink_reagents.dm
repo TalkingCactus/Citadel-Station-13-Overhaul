@@ -135,6 +135,10 @@
 		. = 1
 	if(holder.has_reagent("capsaicin"))
 		holder.remove_reagent("capsaicin", 2)
+	var/datum/dna/Mdna = M.has_dna()
+	if(Mdna && Mdna.species && (Mdna.species.id == "plasmaman" || Mdna.species.id == "skeleton"))
+		M.heal_organ_damage(1,0, 0)
+		. = 1
 	..()
 
 /datum/reagent/consumable/soymilk
@@ -200,6 +204,19 @@
 		M.adjustToxLoss(-1, 0)
 	if (M.bodytemperature < 310)  //310 is the normal bodytemp. 310.055
 		M.bodytemperature = min(310, M.bodytemperature + (20 * TEMPERATURE_DAMAGE_COEFFICIENT))
+	..()
+	. = 1
+
+/datum/reagent/consumable/tea/arnold_palmer
+	name = "Arnold Palmer"
+	id = "arnold_palmer"
+	description = "Encourages the patient to go golfing."
+	color = "#FFB766"
+	nutriment_factor = 2
+
+/datum/reagent/consumable/tea/arnold_palmer/on_mob_life(mob/living/M)
+	if(prob(5))
+		M << "<span class = 'notice'>[pick("You remember to square your shoulders.","You remember to keep your head down.","You can't decide between squaring your shoulders and keeping your head down.","You remember to relax.","You think about how someday you'll get two strokes off your golf game.")]</span>"
 	..()
 	. = 1
 

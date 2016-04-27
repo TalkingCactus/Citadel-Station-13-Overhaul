@@ -35,12 +35,40 @@
 	required_temp = 474
 	strengthdiv = 2
 
+
 /datum/chemical_reaction/reagent_explosion/potassium_explosion
 	name = "Explosion"
 	id = "potassium_explosion"
 	required_reagents = list("water" = 1, "potassium" = 1)
 	result_amount = 2
 	strengthdiv = 10
+
+/datum/chemical_reaction/reagent_explosion/potassium_explosion/holyboom
+	name = "Holy Explosion"
+	id = "holyboom"
+	required_reagents = list("holywater" = 1, "potassium" = 1)
+
+/datum/chemical_reaction/reagent_explosion/potassium_explosion/holyboom/on_reaction(datum/reagents/holder, created_volume)
+	if(created_volume >= 150)
+		playsound(get_turf(holder.my_atom), 'sound/effects/pray.ogg', 80, 0, round(created_volume/48))
+		strengthdiv = 8
+		for(var/mob/living/simple_animal/revenant/R in get_hearers_in_view(7,get_turf(holder.my_atom)))
+			var/diety = ticker.Bible_deity_name
+			if(!ticker.Bible_deity_name)
+				diety = "Christ"
+			R << "<span class='userdanger'>The power of [diety] compels you!</span>"
+			R.stun(20)
+			R.reveal(100)
+		sleep(20)
+		for(var/mob/living/carbon/C in get_hearers_in_view(round(created_volume/48,1),get_turf(holder.my_atom)))
+			if(iscultist(C) || is_handofgod_cultist(C) || C.dna.species.id == "shadowling" || C.dna.species.id == "l_shadowling")
+				C << "<span class='userdanger'>The divine explosion sears you!</span>"
+				C.Weaken(2)
+				C.adjust_fire_stacks(5)
+				C.IgniteMob()
+		..()
+	else
+		..()
 
 /datum/chemical_reaction/blackpowder
 	name = "Black Powder"
@@ -106,6 +134,29 @@
 		PoolOrNew(/obj/effect/hotspot, turf)
 	holder.chem_temp = 1000 // hot as shit
 
+
+/datum/chemical_reaction/reagent_explosion/methsplosion/
+	name = "Meth explosion"
+	id = "methboom1"
+	result = "methboom1"
+	result_amount = 1
+	required_temp = 380 //slightly above the meth mix time.
+	required_reagents = list("methamphetamine" = 1)
+	strengthdiv = 6
+	modifier = 1
+
+/datum/chemical_reaction/reagent_explosion/methsplosion/on_reaction(datum/reagents/holder, created_volume)
+	var/turf/T = get_turf(holder.my_atom)
+	for(var/turf/turf in range(1,T))
+		PoolOrNew(/obj/effect/hotspot, turf)
+	holder.chem_temp = 1000 // hot as shit
+	..()
+
+/datum/chemical_reaction/reagent_explosion/methsplosion/methboom2
+	required_reagents = list("diethylamine" = 1, "iodine" = 1, "phosphorus" = 1, "hydrogen" = 1) //diethylamine is often left over from mixing the ephedrine.
+	required_temp = 300 //room temperature, chilling it even a little will prevent the explosion
+	result_amount = 4
+
 /datum/chemical_reaction/sorium
 	name = "Sorium"
 	id = "sorium"
@@ -117,7 +168,7 @@
 	if(holder.has_reagent("stabilizing_agent"))
 		return
 	holder.remove_reagent("sorium", created_volume)
-	var/turf/simulated/T = get_turf(holder.my_atom)
+	var/turf/T = get_turf(holder.my_atom)
 	var/range = Clamp(sqrt(created_volume), 1, 6)
 	goonchem_vortex(T, 1, range)
 
@@ -130,7 +181,7 @@
 	required_temp = 474
 
 /datum/chemical_reaction/sorium_vortex/on_reaction(datum/reagents/holder, created_volume)
-	var/turf/simulated/T = get_turf(holder.my_atom)
+	var/turf/T = get_turf(holder.my_atom)
 	var/range = Clamp(sqrt(created_volume), 1, 6)
 	goonchem_vortex(T, 1, range)
 
@@ -146,7 +197,7 @@
 	if(holder.has_reagent("stabilizing_agent"))
 		return
 	holder.remove_reagent("liquid_dark_matter", created_volume)
-	var/turf/simulated/T = get_turf(holder.my_atom)
+	var/turf/T = get_turf(holder.my_atom)
 	var/range = Clamp(sqrt(created_volume), 1, 6)
 	goonchem_vortex(T, 0, range)
 
@@ -159,7 +210,7 @@
 	required_temp = 474
 
 /datum/chemical_reaction/ldm_vortex/on_reaction(datum/reagents/holder, created_volume)
-	var/turf/simulated/T = get_turf(holder.my_atom)
+	var/turf/T = get_turf(holder.my_atom)
 	var/range = Clamp(sqrt(created_volume/2), 1, 6)
 	goonchem_vortex(T, 0, range)
 
@@ -310,9 +361,9 @@
 /datum/chemical_reaction/phlogiston/on_reaction(datum/reagents/holder, created_volume)
 	if(holder.has_reagent("stabilizing_agent"))
 		return
-	var/turf/simulated/T = get_turf(holder.my_atom)
+	var/turf/open/T = get_turf(holder.my_atom)
 	if(istype(T))
-		T.atmos_spawn_air(SPAWN_HEAT | SPAWN_TOXINS, created_volume)
+		T.atmos_spawn_air("plasma=[created_volume];TEMP=1000")
 	holder.clear_reagents()
 	return
 

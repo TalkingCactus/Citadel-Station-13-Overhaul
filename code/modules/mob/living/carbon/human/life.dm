@@ -47,6 +47,9 @@
 /mob/living/carbon/human/calculate_affecting_pressure(pressure)
 	if((wear_suit && (wear_suit.flags & STOPSPRESSUREDMAGE)) && (head && (head.flags & STOPSPRESSUREDMAGE)))
 		return ONE_ATMOSPHERE
+
+	if (istype(loc, /mob/living)) return ONE_ATMOSPHERE
+
 	else
 		return pressure
 
@@ -212,6 +215,9 @@
 /mob/living/carbon/human/proc/get_cold_protection(temperature)
 
 	if(dna.check_mutation(COLDRES))
+		return 1
+
+	if(ismob(loc))
 		return 1 //Fully protected from the cold.
 
 	if(dna && COLDRES in dna.species.specflags)

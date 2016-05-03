@@ -315,7 +315,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		S["features["mcolor"]"]	<< "#FFF"
 
 	//Character
-	S["OOC_Notes"]			>> metadata
+	S["flavor_text"]		>> flavor_text
 	S["real_name"]			>> real_name
 	S["name_is_always_random"] >> be_random_name
 	S["body_is_always_random"] >> be_random_body
@@ -368,7 +368,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 		update_character(needs_update)		//needs_update == savefile_version if we need an update (positive integer)
 
 	//Sanitize
-	metadata		= sanitize_text(metadata, initial(metadata))
+	flavor_text		= sanitize_text(flavor_text, initial(flavor_text))
 	real_name		= reject_bad_name(real_name)
 	if(!features["mcolor"] || features["mcolor"] == "#000")
 		features["mcolor"] = pick("FFFFFF","7F7F7F", "7FFF7F", "7F7FFF", "FF7F7F", "7FFFFF", "FF7FFF", "FFFF7F")
@@ -428,7 +428,7 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["version"]			<< SAVEFILE_VERSION_MAX	//load_character will sanitize any bad data, so assume up-to-date.
 
 	//Character
-	S["OOC_Notes"]			<< metadata
+	S["flavor_text"]		<< flavor_text
 	S["real_name"]			<< real_name
 	S["name_is_always_random"] << be_random_name
 	S["body_is_always_random"] << be_random_body
@@ -472,6 +472,37 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["job_engsec_high"]	<< job_engsec_high
 	S["job_engsec_med"]		<< job_engsec_med
 	S["job_engsec_low"]		<< job_engsec_low
+
+	return 1
+
+/datum/preferences/proc/load_vore_preferences(slot)
+	if(!path)				return 0
+	if(!fexists(path))		return 0
+	var/savefile/S = new /savefile(path)
+	if(!S)					return 0
+	S.cd = "/"
+	if(!slot)	slot = default_slot
+	slot = sanitize_integer(slot, 1, initial(default_slot))
+	if(slot != default_slot)
+		default_slot = slot
+		S["default_slot"] << slot
+	S.cd = "/character[slot]"
+
+	S["belly_prefs"]	>> belly_prefs
+
+	if(!belly_prefs)
+		belly_prefs = list()
+
+	return 1
+
+/datum/preferences/proc/save_vore_preferences()
+	if(!path)				return 0
+	var/savefile/S = new /savefile(path)
+	if(!S)					return 0
+	S.cd = "/character[default_slot]"
+
+	S["belly_prefs"]	<< belly_prefs
+	S["digestable"]	<< digestable
 
 	return 1
 

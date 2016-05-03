@@ -43,7 +43,6 @@
 	var/vote_no_default = 0				// vote does not default to nochange/norestart (tbi)
 	var/vote_no_dead = 0				// dead people can't vote (tbi)
 	var/del_new_on_log = 1				// del's new players if they log before they spawn in
-	var/allow_Metadata = 0				// Metadata is supported.
 	var/popup_admin_pm = 0				//adminPMs to non-admins show in a pop-up 'reply' window when set to 1.
 	var/fps = 10
 	var/allow_holidays = 0				//toggles whether holiday-specific content should be used
@@ -326,8 +325,6 @@
 					guests_allowed = 0
 				if("usewhitelist")
 					config.usewhitelist = 1
-				if("allow_metadata")
-					config.allow_Metadata = 1
 				if("kick_inactive")
 					if(value < 1)
 						value = INACTIVITY_KICK

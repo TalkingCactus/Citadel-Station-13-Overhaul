@@ -8,7 +8,7 @@ var/list/preferences_datums = list()
 	//doohickeys for savefiles
 	var/path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
-	var/max_save_slots = 3
+	var/max_save_slots = 12
 
 	//non-preference stuff
 	var/muted = 0
@@ -59,7 +59,7 @@ var/list/preferences_datums = list()
 	var/skin_tone = "caucasian1"		//Skin color
 	var/eye_color = "000"				//Eye color
 	var/datum/species/pref_species = new /datum/species/human()	//Mutant race
-	var/list/features = list("mcolor" = "FFF", "tail_lizard" = "Smooth", "tail_human" = "None", "snout" = "Round", "horns" = "None", "ears" = "None", "frills" = "None", "spines" = "None", "body_markings" = "None")
+	var/list/features = list("mcolor" = "FFF", "tail_lizard" = "Smooth", "tail_human" = "None", "snout" = "Round", "horns" = "None", "ears" = "None", "wings" = "None", "frills" = "None", "spines" = "None", "body_markings" = "None")
 
 	var/list/custom_names = list("clown", "mime", "ai", "cyborg", "religion", "deity")
 	var/adminmusicvolume = 50
@@ -79,14 +79,18 @@ var/list/preferences_datums = list()
 	var/job_engsec_med = 0
 	var/job_engsec_low = 0
 
+		//vore stuff
+	var/playerscale = RESIZE_NORMAL		//Custom playerscale
+	var/list/belly_prefs = list()
+	var/digestable = 1
+
 		// Want randomjob if preferences already filled - Donkie
 	var/userandomjob = 1 //defaults to 1 for fewer assistants
 
 	// 0 = character settings, 1 = game preferences
 	var/current_tab = 0
 
-		// OOC Metadata:
-	var/metadata = ""
+	var/flavor_text = ""
 
 	var/unlock_content = 0
 
@@ -103,11 +107,13 @@ var/list/preferences_datums = list()
 			load_path(C.ckey)
 			unlock_content = C.IsByondMember()
 			if(unlock_content)
-				max_save_slots = 8
+				max_save_slots = 16
 	var/loaded_preferences_successfully = load_preferences()
 	if(loaded_preferences_successfully)
 		if(load_character())
-			return
+			if(load_vore_preferences())
+				return
+
 	//we couldn't load character data so just randomize the character appearance + name
 	random_character()		//let's create a random character then - rather than a fat, bald and naked man.
 	real_name = pref_species.random_name(gender,1)
@@ -173,7 +179,15 @@ var/list/preferences_datums = list()
 			dat += "<a href ='?_src_=prefs;preference=religion_name;task=input'><b>Chaplain religion:</b> [custom_names["religion"]] </a>"
 			dat += "<a href ='?_src_=prefs;preference=deity_name;task=input'><b>Chaplain deity:</b> [custom_names["deity"]]</a><BR></td>"
 
-
+			dat += "<a href='byond://?src=\ref[user];preference=flavor_text;task=input'><b>Set Flavor Text</b></a><br>"
+			if(lentext(flavor_text) <= 40)
+				if(!lentext(flavor_text))
+					dat += "\[...\]"
+				else
+					dat += "[flavor_text]"
+			else
+				dat += "[TextPreview(flavor_text)]...<br>"
+ 			dat += "<br>"
 			dat += "<td valign='center'>"
 
 			dat += "<div class='statusDisplay'><center><img src=previewicon.png width=[preview_icon.Width()] height=[preview_icon.Height()]></center></div>"
@@ -324,6 +338,15 @@ var/list/preferences_datums = list()
 
 					dat += "</td>"
 
+				if("wings" in pref_species.mutant_bodyparts)	//TODO: make specific body parts be toggleable via config or something.
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Wings</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=wings;task=input'>[features["wings"]]</a><BR>"
+
+					dat += "</td>"
+
 			dat += "</tr></table>"
 
 
@@ -343,8 +366,6 @@ var/list/preferences_datums = list()
 			dat += "<b>Ghost pda:</b> <a href='?_src=prefs;preference=ghost_pda'>[(chat_toggles & CHAT_GHOSTPDA) ? "All Messages" : "Nearest Creatures"]</a><br>"
 			dat += "<b>Pull requests:</b> <a href='?_src_=prefs;preference=pull_requests'>[(chat_toggles & CHAT_PULLR) ? "Yes" : "No"]</a><br>"
 			dat += "<b>Midround Antagonist:</b> <a href='?_src_=prefs;preference=allow_midround_antag'>[(toggles & MIDROUND_ANTAG) ? "Yes" : "No"]</a><br>"
-			if(config.allow_Metadata)
-				dat += "<b>OOC Notes:</b> <a href='?_src_=prefs;preference=metadata;task=input'>Edit </a><br>"
 
 			if(user.client)
 				if(user.client.holder)
@@ -807,10 +828,14 @@ var/list/preferences_datums = list()
 					if(new_age)
 						age = max(min( round(text2num(new_age)), AGE_MAX),AGE_MIN)
 
-				if("metadata")
-					var/new_metadata = input(user, "Enter any information you'd like others to see, such as Roleplay-preferences:", "Game Preference" , metadata)  as message|null
-					if(new_metadata)
-						metadata = sanitize(copytext(new_metadata,1,MAX_MESSAGE_LEN))
+				if("flavor_text")
+					var/msg = input(usr,"Set the flavor text in your 'examine' verb. This can also be used for OOC notes and preferences!","Flavor Text",html_decode(flavor_text)) as message
+
+					if(msg != null)
+						msg = copytext(msg, 1, MAX_MESSAGE_LEN)
+						msg = html_encode(msg)
+
+						flavor_text = msg
 
 				if("hair")
 					var/new_hair = input(user, "Choose your character's hair colour:", "Character Preference") as null|color
@@ -945,6 +970,12 @@ var/list/preferences_datums = list()
 					new_ears = input(user, "Choose your character's ears:", "Character Preference") as null|anything in ears_list
 					if(new_ears)
 						features["ears"] = new_ears
+
+			//	if("wings")
+			//		var/new_wings
+			//		new_wings = input(user, "Choose your character's wings:", "Character Preference") as null|anything in wings_list
+			//		if(new_wings)
+			//			features["wings"] = new_wings
 
 				if("frills")
 					var/new_frills
@@ -1126,12 +1157,15 @@ var/list/preferences_datums = list()
 				if("save")
 					save_preferences()
 					save_character()
+					save_vore_preferences()
 
 				if("load")
 					load_preferences()
 					load_character()
+					load_vore_preferences()
 
 				if("changeslot")
+					load_vore_preferences(text2num(href_list["num"]))
 					if(!load_character(text2num(href_list["num"])))
 						random_character()
 						real_name = random_unique_name(gender)
@@ -1164,6 +1198,26 @@ var/list/preferences_datums = list()
 
 	character.gender = gender
 	character.age = age
+
+	character.flavor_text = flavor_text
+
+	if(!length(belly_prefs))
+	//	log_debug("Newvore: Giving default stomach to [character] since belly_prefs is empty")
+		var/datum/belly/stomach = new/datum/belly(src)
+		stomach.name = "Stomach"
+		stomach.inside_flavor = "Just the slimy inside of [character]'s stomach!"
+		stomach.immutable = 1
+		belly_prefs["Stomach"] = stomach
+
+	character.vore_organs = belly_prefs
+
+	character.vore_selected = character.vore_organs[1]
+
+	for(var/O in character.vore_organs)
+		var/datum/belly/B = character.vore_organs[O]
+		B.owner = character
+
+	character.digestable = digestable
 
 	character.eye_color = eye_color
 	character.hair_color = hair_color

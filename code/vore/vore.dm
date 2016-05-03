@@ -1,21 +1,36 @@
 
-// Cross-defined vars to keep vore code isolated.
+/*
+VVVVVVVV           VVVVVVVV     OOOOOOOOO     RRRRRRRRRRRRRRRRR   EEEEEEEEEEEEEEEEEEEEEE
+V::::::V           V::::::V   OO:::::::::OO   R::::::::::::::::R  E::::::::::::::::::::E
+V::::::V           V::::::V OO:::::::::::::OO R::::::RRRRRR:::::R E::::::::::::::::::::E
+V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEEEEE::::E
+ V:::::V           V:::::V O::::::O   O::::::O  R::::R     R:::::R  E:::::E       EEEEEE
+  V:::::V         V:::::V  O:::::O     O:::::O  R::::R     R:::::R  E:::::E
+   V:::::V       V:::::V   O:::::O     O:::::O  R::::RRRRRR:::::R   E::::::EEEEEEEEEE
+    V:::::V     V:::::V    O:::::O     O:::::O  R:::::::::::::RR    E:::::::::::::::E
+     V:::::V   V:::::V     O:::::O     O:::::O  R::::RRRRRR:::::R   E:::::::::::::::E
+      V:::::V V:::::V      O:::::O     O:::::O  R::::R     R:::::R  E::::::EEEEEEEEEE
+       V:::::V:::::V       O:::::O     O:::::O  R::::R     R:::::R  E:::::E
+        V:::::::::V        O::::::O   O::::::O  R::::R     R:::::R  E:::::E       EEEEEE
+         V:::::::V         O:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEEEE:::::E
+          V:::::V           OO:::::::::::::OO R::::::R     R:::::RE::::::::::::::::::::E
+           V:::V              OO:::::::::OO   R::::::R     R:::::RE::::::::::::::::::::E
+            VVV                 OOOOOOOOO     RRRRRRRR     RRRRRRREEEEEEEEEEEEEEEEEEEEEE
 
+-Aro <3 */
+
+// Cross-defined vars to keep vore code isolated. //Somewhat. -Aro
 /mob/living
-	var/digestable = 1					//Can the mob be digested inside a belly?
-	var/datum/voretype/vorifice = null	// Default to no vore capability.
-
-	var/vore_banned_methods=0
-
-	// TODO - Rename this! It is too conflicty with belly.internal_contents
-	var/list/internal_contents = list()
+	var/digestable = 1					// Can the mob be digested inside a belly?
+	var/datum/belly/vore_selected		// Default to no vore capability.
+	var/list/vore_organs = list()		// List of vore containers inside a mob
+//	var/absorbed = 0					// If a mob is absorbed into another
 
 /mob/living/simple_animal
 	var/isPredator = 0 					//Are they capable of performing and pre-defined vore actions for their species?
 	var/swallowTime = 30 				//How long it takes to eat its prey in 1/10 of a second. The default is 3 seconds.
 	var/backoffTime = 50 				//How long to exclude an escaped mob from being re-eaten.
 	var/gurgleTime = 600				//How long between stomach emotes at prey
-	var/datum/belly/insides				//The place where food goes. Just one on mobs.
 	var/list/prey_excludes = list()		//For excluding people from being eaten.
 
 	//We have some default emotes for mobs to do to their prey.
@@ -41,118 +56,115 @@
 	set category = "Vore"
 	set src in oview(1)
 
-	if(insides.digest_mode == "Hold")
+	var/datum/belly/B = vore_organs[vore_selected]
+
+	if(B.digest_mode == "Hold")
 		var/confirm = alert(usr, "Enabling digestion on [name] will cause it to digest all stomach contents. Using this to break OOC prefs is against the rules. Digestion will disable itself after 20 minutes.", "Enabling [name]'s Digestion", "Enable", "Cancel")
 		if(confirm == "Enable")
-			insides.digest_mode = "Digest"
+			B.digest_mode = "Digest"
 			spawn(12000) //12000=20 minutes
-				if(src)	insides.digest_mode = "Hold"
+				if(src)	B.digest_mode = "Hold"
 	else
 		var/confirm = alert(usr, "This mob is currently set to digest all stomach contents. Do you want to disable this?", "Disabling [name]'s Digestion", "Disable", "Cancel")
 		if(confirm == "Disable")
-			insides.digest_mode = "Hold"
+			B.digest_mode = "Hold"
+
+// Simple animal nom proc for if you get ckey'd into a simple_animal mob!
+// Should be fine? Doesn't require grabbing.
+/mob/living/proc/animal_nom(var/mob/living/T in oview(1))
+	set name = "Animal Nom"
+	set category = "Vore"
+	set desc = "Since you can't grab, you get a verb!"
+
+	feed_grabbed_to_self(src,T)
 
 //	This is an "interface" type.  No instances of this type will exist, but any type which is supposed
 //  to be vore capable should implement the vars and procs defined here to be vore-compatible!
 /vore/pred_capable
-	var/list/internal_contents
+	var/list/vore_organs
 	var/datum/voretype/vorifice
 
 //
 //	Check if an object is capable of eating things.
 //	For now this is just simple_animals and carbons
 //
-/proc/is_vore_predator(var/mob/O)
-	return (O != null && (istype(O, /mob/living/simple_animal) || istype(O, /mob/living/carbon)) && O:vorifice)
+/proc/is_vore_predator(var/mob/living/O)
+	if(istype(O,/mob/living))
+		if(O.vore_organs.len > 0)
+			return 1
 
+	return 0
 //
 //	Verb for toggling which orifice you eat people with!
 //
-/mob/living/carbon/human/proc/orifice_toggle()
-	set name = "Choose Vore Mode"
+/mob/living/proc/belly_select()
+	set name = "Choose Belly"
 	set category = "Vore"
 
-	var/type = input("Choose Vore Mode") in list("Oral Vore", "Unbirth", "Anal Vore", "Cock Vore", "Breast Vore", "Tail Vore")
-	// This is hard coded for now, but should be fixed later!
-	vorifice = SINGLETON_VORETYPE_INSTANCES[type];
+	vore_selected = input("Choose Belly") in vore_organs
+	src << "<span class='notice'>[vore_selected] selected.</span>"
 
-	// TODO LESHANA - This is bad!
-	// Vorifice objects have no member vars, so are effectively immutable!
-	// Given this, we shouldn't be creating new instances for every mob!  Instead we should have global singletons.
-	// TODO - Implement this.  even better would be function pointers, but eh.
-	src << "<span class='notice'>[vorifice.name] selected.</span>"
+//
+//	Verb for saving vore preferences to save file
+//
+/mob/living/proc/save_vore_prefs()
+	set name = "Save Vore Prefs"
+	set category = "Vore"
 
-/mob/living/carbon/human/proc/vore_release()
+	var/result
+
+	if(client.prefs)
+		result = client.prefs.save_vore_preferences()
+	else
+		src << "<span class='warning'>You attempted to save your vore prefs but somehow you're in this character without a client.prefs variable. Tell a dev.</span>"
+		log_admin("[src] tried to save vore prefs but lacks a client.prefs var.")
+
+	return result
+
+//
+//	Proc for applying vore preferences, given bellies
+//
+/mob/living/proc/apply_vore_prefs(var/list/bellies)
+	if(!bellies || bellies.len == 0)
+		log_admin("Tried to apply bellies to [src] and failed.")
+
+
+//
+//	Proc for updating vore organs and digestion/healing/absorbing
+//
+/mob/living/proc/handle_internal_contents()
+	for (var/bellytype in vore_organs)
+		var/datum/belly/B = vore_organs[bellytype]
+		for(var/atom/movable/M in B.internal_contents)
+			if(M.loc != src)
+				B.internal_contents -= M
+				log_admin("Had to remove [M] from belly [B] in [src]")
+		B.process_Life()
+
+//
+//	Verb for toggling which orifice you eat people with!
+// VTODO: Make this part of the inside panel (or whatever) instead
+/mob/living/proc/vore_release()
 	set name = "Release"
 	set category = "Vore"
-	var/releaseorifice = input("Choose Orifice") in list("Stomach (by Mouth)", "Stomach (by Anus)", "Womb", "Cock", "Breasts", "Tail", "Absorbed")
+	var/release_organ = input("Choose Belly") in vore_organs
 
-	// TODO LESHANA - This should all be refactored into procs on voretype that are overriden...
-	switch(releaseorifice)
-		if("Stomach (by Mouth)")
-			var/datum/belly/belly = internal_contents["Stomach"]
-			if (belly.release_all_contents())
-				visible_message("<font color='green'><b>[src] hurls out the contents of their stomach!</b></font>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
+	if(release_organ) //Sanity
+		var/datum/belly/belly = vore_organs[release_organ]
+		if (belly.release_all_contents())
+			visible_message("<font color='green'><b>[src] releases the contents of their [lowertext(belly)]!</b></font>")
+			playsound(loc, 'sound/effects/splat.ogg', 50, 1)
 
-		if("Stomach (by Anus)")
-			var/datum/belly/belly = internal_contents["Stomach"]
-			if (belly.release_all_contents())
-				visible_message("<font color='green'><b>[src] releases their stomach contents out of their rear!</b></font>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
+/mob/living/proc/toggle_digestability()
+	set name = "Toggle digestability"
+	set category = "Vore"
 
-		if("Womb")
-			var/datum/belly/belly = internal_contents["Womb"]
-			if (belly.release_all_contents())
-				visible_message("<font color='green'><b>[src] gushes out the contents of their womb!</b></font>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-			else if (belly.is_full)
-				belly.is_full = 0
-				visible_message("<span class='danger'>[src] gushes out a puddle of liquid from their folds!</span>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-
-		if("Cock")
-			var/datum/belly/belly = internal_contents["Cock"]
-			if (belly.release_all_contents())
-				visible_message("<font color='green'><b>[src] splurts out the contents of their cock!</b></font>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-			else if (belly.is_full)
-				belly.is_full = 0
-				visible_message("<span class='danger'>[src] gushes out a puddle of cum from their cock!</span>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-
-		if("Breasts")
-			var/datum/belly/belly = internal_contents["Boob"]
-			if (belly.release_all_contents())
-				visible_message("<font color='green'><b>[src] squirts out the contents of their breasts!</b></font>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-			else if(belly.is_full)
-				belly.is_full = 0
-				visible_message("<span class='danger'>[src] squirts out a puddle of milk from their breasts!</span>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-		if("Tail")
-			var/datum/belly/belly = internal_contents["Tail"]
-			if (belly.release_all_contents())
-				visible_message("<font color='green'><b>[src] releases a few things from their tail!</b></font>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-			else if (belly.is_full)
-				belly.is_full = 0
-				visible_message("<span class='danger'>[src] releases a few things from their tail!</span>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-
-		if("Absorbed")
-			var/datum/belly/belly = internal_contents["Absorbed"]
-			if (belly.release_all_contents())
-				visible_message("<font color='green'><b>[src] releases something from ther body!</b></font>")
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-			else if (belly.is_full)
-				belly.is_full = 0
-				visible_message("<span class='danger'>[src] releases something from their body!</span>") //They should never see this. Can't digest someone in you.
-				playsound(loc, 'sound/effects/splat.ogg', 50, 1)
-
-/////////////////////////////
-////   OOC Escape Code	 ////
-/////////////////////////////
+	if(alert(src, "This button will make you undigestable.", "", "Okay", "Cancel") == "Okay")
+		digestable = !digestable
+		usr << "<span class='alert'>You are [digestable ?  "now" : "no longer"] digestable.</span>"
+	//	message_admins("[key_name(src)] toggled their digestability to [digestable] ([loc ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[loc.x];Y=[loc.y];Z=[loc.z]'>JMP</a>" : "null"])")
+		if(client.prefs)
+			client.prefs.digestable = digestable
 
 /mob/living/proc/escapeOOC()
 	set name = "OOC escape"
@@ -161,21 +173,24 @@
 	//You're in an animal!
 	if(istype(src.loc,/mob/living/simple_animal))
 		var/mob/living/simple_animal/pred = src.loc
-		var/confirm = alert(src, "You're in a mob and don't want to be?", "Confirmation", "Okay", "Cancel")
+		var/confirm = alert(src, "You're in a mob. This is for being unable to escape from said mob.", "Confirmation", "Okay", "Cancel")
 		if(confirm == "Okay")
-			pred.prey_excludes += src
-			spawn(pred.backoffTime)
-				if(pred)	pred.prey_excludes -= src
-			pred.insides.release_specific_contents(src)
-			message_admins("[key_name(src)] used the OOC escape button to get out of [key_name(pred)] (MOB) ([pred ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[pred.x];Y=[pred.y];Z=[pred.z]'>JMP</a>" : "null"])")
-/*
-	//You're in a PC!
-	else if(istype(src.loc,/mob/living/carbon))
+			for(var/I in pred.vore_organs)
+				var/datum/belly/B = pred.vore_organs[I]
+				B.release_specific_contents(src)
+
+	/*		for(var/mob/living/simple_animal/SA in range(10))
+				SA.prey_exclusions += src
+				spawn(18000)
+					if(src && SA)
+						SA.prey_exclusions -= src
+	*/ //You're in a PC!
+/*	else if(istype(src.loc,/mob/living))
 		var/mob/living/carbon/pred = src.loc
 		var/confirm = alert(src, "You're in a player-character. This is for escaping from preference-breaking and if your predator disconnects/AFKs. If you are in more than one pred, use this more than once. If your preferences were being broken, please admin-help as well.", "Confirmation", "Okay", "Cancel")
 		if(confirm == "Okay")
-			for(var/O in pred.internal_contents)
-				var/datum/belly/CB = pred.internal_contents[O]
+			for(var/O in pred.vore_organs)
+				var/datum/belly/CB = pred.vore_organs[O]
 				CB.release_specific_contents(src)
 			message_admins("[key_name(src)] used the OOC escape button to get out of [key_name(pred)] (PC) ([pred ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[pred.x];Y=[pred.y];Z=[pred.z]'>JMP</a>" : "null"])")
 
@@ -184,147 +199,95 @@
 		var/mob/living/silicon/pred = src.loc.loc //Thing holding the belly!
 		var/obj/item/device/dogborg/sleeper/belly = src.loc //The belly!
 
-		var/confirm = alert(src, "You're in a player-character cyborg. This is for escaping from preference-breaking and if your predator disconnects/AFKs. If your preferences were being broken, please admin-help as well.", "Confirmation", "Okay", "Cancel")
+		var/confirm = alert(src, "You're in a dogborg sleeper. This is for escaping from preference-breaking and if your predator disconnects/AFKs. If your preferences were being broken, please admin-help as well.", "Confirmation", "Okay", "Cancel")
 		if(confirm == "Okay")
 			message_admins("[key_name(src)] used the OOC escape button to get out of [key_name(pred)] (BORG) ([pred ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[pred.x];Y=[pred.y];Z=[pred.z]'>JMP</a>" : "null"])")
-			belly.go_out() //Just force-ejects from the borg as if they'd clicked the eject button.
-
+			belly.go_out(src) //Just force-ejects from the borg as if they'd clicked the eject button.
+*/
 			/* Use native code to avoid leaving vars all set wrong on the borg
 			forceMove(get_turf(src)) //Since they're not in a vore organ, you can't eject them "normally"
 			reset_view() //This will kick them out of the borg's stomach sleeper in case the borg goes AFK or whatnot.
 			message_admins("[key_name(src)] used the OOC escape button to get out of a cyborg..") //Not much information,
-			*/ */
+			*/
 	else
 		src << "<span class='alert'>You aren't inside anyone, you clod.</span>"
 
-/////////////////////////
-///    Vore Toggles   ///
-/////////////////////////
 
-//Makeshift vore toggles
 
+
+
+///
+/// Actual eating procs
+///
+
+/mob/living/proc/feed_grabbed_to_self(var/mob/living/user, var/mob/living/prey)
+	var/belly = user.vore_selected
+	return perform_the_nom(user, prey, user, belly)
 /*
-
-/mob/living/proc/set_vore_abil()
-	set name = "Enable Vore Ability"
-	set category = "Vore"
-	var/selection = input("People will be able to feed you, and it will be an option to you on other menus.") in list("Cancel", "Anal", "Cock", "Unbirth")
-	if(selection=="Cancel")return
-	if(selection=="Anal")
-		vore_possible_methods |= VORE_METHOD_ANAL
-	if(selection=="Cock")
-		vore_possible_methods |= VORE_METHOD_COCK
-	if(selection=="Unbirth")
-		vore_possible_methods |= VORE_METHOD_UNBIRTH
-	if(selection=="Breast")
-		vore_possible_methods |= VORE_METHOD_BREAST
-	if(selection=="Tail")
-		vore_possible_methods |= VORE_METHOD_TAIL
-	src << "[selection] added."
-
-/mob/living/proc/set_vore_debil()
-	set name = "Disable Vore Ability"
-	set category = "Vore"
-	var/selection = input("Will prevent you from devouring people this way.") in list("Cancel", "Anal", "Cock", "Unbirth")
-	if(selection=="Cancel")return
-	if(selection=="Anal")
-		vore_possible_methods &= ~VORE_METHOD_ANAL
-	if(selection=="Cock")
-		vore_possible_methods &= ~VORE_METHOD_COCK
-	if(selection=="Unbirth")
-		vore_possible_methods &= ~VORE_METHOD_UNBIRTH
-	if(selection=="Breast")
-		vore_banned_methods &= ~VORE_METHOD_BREAST
-	if(selection=="Tail")
-		vore_banned_methods &= ~VORE_METHOD_TAIL
-	src << "[selection] removed."
-
-
-
-/mob/living/proc/set_vore_mode()
-	set name = "Change Vore Mode"
-	set category = "Vore"
-	var/selection = input("Set the type of vore used when eating or feeding others.") in list("Oral", "Anal", "Cock", "Unbirth", "Put in Shoe", "Place under suit")
-	if(selection=="Oral")
-		vore_current_method = VORE_METHOD_ORAL
-	if(selection=="Anal")
-		vore_current_method = VORE_METHOD_ANAL
-	if(selection=="Cock")
-		vore_current_method = VORE_METHOD_COCK
-	if(selection=="Unbirth")
-		vore_current_method = VORE_METHOD_UNBIRTH
-	if(selection=="Put in Shoe")
-		vore_current_method = VORE_METHOD_INSOLE
-	if(selection=="Place under suit")
-		vore_current_method = VORE_METHOD_INSUIT
-		src << "(Not really much of a vore method, but, gotta put it in the debug panel.)"
-	src << "[selection] is your current vore type."
-	if(!(src.vore_possible_methods&vore_current_method))
-		src<<"Note: You do not have this vore type enabled for yourself. This will only work when feeding people."
-
-
-/mob/living/proc/set_vore_ban()
-	set name = "Ban Vore Type"
-	set category = "Vore"
-	var/selection = input("People will not be able to engage you in this type, and will instead orally vore.") in list("Cancel", "Anal", "Cock", "Unbirth", "Breast", "Tail")
-	if(selection=="Anal")
-		vore_banned_methods |= VORE_METHOD_ANAL
-	if(selection=="Cock")
-		vore_banned_methods |= VORE_METHOD_COCK
-	if(selection=="Unbirth")
-		vore_banned_methods |= VORE_METHOD_UNBIRTH
-	if(selection=="Breast")
-		vore_banned_methods |= VORE_METHOD_BREAST
-	if(selection=="Tail")
-		vore_banned_methods |= VORE_METHOD_TAIL
-	src << "[selection] banned."
-
-/mob/living/proc/set_vore_unban()
-	set name = "Unban Vore Type"
-	set category = "Vore"
-	if(!src.vore_banned_methods)
-		src<<"No banned vore methods."
-		return
-	var/selection = input("People will be able to engage you in this type of vore again.") in list("Cancel", "Anal", "Cock", "Unbirth", "Breast", "Tail")
-	if(selection=="Anal")
-		vore_banned_methods &= ~VORE_METHOD_ANAL
-	if(selection=="Cock")
-		vore_banned_methods &= ~VORE_METHOD_COCK
-	if(selection=="Unbirth")
-		vore_banned_methods &= ~VORE_METHOD_UNBIRTH
-	if(selection=="Breast")
-		vore_banned_methods &= ~VORE_METHOD_BREAST
-	if(selection=="Tail")
-		vore_banned_methods &= ~VORE_METHOD_TAIL
-	src << "[selection] unbanned." */
-
-/mob/living/proc/set_vore_digest()
-	set name = "Digestion Toggle"
-	set category = "Vore"
-	var/type = input("Toggle Digestion") in list("Stomach", "Womb", "Cock", "Breast", "Tail")
-	var/datum/belly/B = internal_contents[type]
-	B.toggle_digestion()
-/*
-/mob/living/proc/underwear_toggle()
-	set name = "Force Update"
-	set category = "Vore"
-	if(istype(src,/mob/living/carbon/human))
-		var/mob/living/carbon/human/humz=src
-		humz.underwear_active=!humz.underwear_active
-		//updateappearance(src)
-		src.update_body()
+/mob/living/proc/eat_held_mob(var/mob/living/user, var/mob/living/prey, var/mob/living/pred)
+	var/belly
+	if(user != pred)
+		belly = input("Choose Belly") in pred.vore_organs
 	else
-		src<<"Humans only."
+		belly = pred.vore_selected
+	return perform_the_nom(user, prey, pred, belly)
 */
+/mob/living/proc/feed_self_to_grabbed(var/mob/living/user, var/mob/living/pred)
+	var/belly = input("Choose Belly") in pred.vore_organs
+	return perform_the_nom(user, user, pred, belly)
 
-/mob/living/carbon/human/proc/I_am_not_mad()
-	set name = "Toggle digestability"
-	set category = "Vore"
+/mob/living/proc/feed_grabbed_to_other(var/mob/living/user, var/mob/living/prey, var/mob/living/pred)
+	var/belly = input("Choose Belly") in pred.vore_organs
+	return perform_the_nom(user, prey, pred, belly)
 
-	if(alert(src, "This button is for those who don't like being digested. It will make you undigestable. Don't abuse. Note that this cannot be toggled inside someone's belly.", "", "Okay", "Cancel") == "Okay")
-		digestable = !digestable
-		usr << "<span class='alert'>You are [digestable ?  "now" : "no longer"] digestable.</span>"
+/mob/living/proc/perform_the_nom(var/mob/living/user, var/mob/living/prey, var/mob/living/pred, var/belly)
+	//Sanity
+	if(!user || !prey || !pred || !belly || !(belly in pred.vore_organs))
+		log_admin("[user] attempted to feed [prey] to [pred], via [belly] but it went wrong.")
+		return
 
-/proc/vore_admins(var/msg)
-	msg = "<span class=\"admin\"><span class=\"prefix\">VORE LOG:</span> <span class=\"message\">[msg]</span></span>"
-	admins << msg
+	// The belly selected at the time of noms
+	var/datum/belly/belly_target = pred.vore_organs[belly]
+	var/attempt_msg = "ERROR: Vore message couldn't be created. Notify a dev. (at)"
+	var/success_msg = "ERROR: Vore message couldn't be created. Notify a dev. (sc)"
+
+	// Prepare messages
+	if(user == pred) //Feeding someone to yourself
+		attempt_msg = text("<span class='warning'>[] is attemping to [] [] into their []!</span>",pred,belly_target.vore_verb,prey,lowertext(belly_target))
+		success_msg = text("<span class='warning'>[] manages to [] [] into their []!</span>",pred,belly_target.vore_verb,prey,lowertext(belly_target))
+	else //Feeding someone to another person
+		attempt_msg = text("<span class='warning'>[] is attempting to make [] [] [] into their []!</span>",user,pred,belly_target.vore_verb,prey,lowertext(belly_target))
+		success_msg = text("<span class='warning'>[] manages to make [] [] [] into their []!</span>",user,pred,belly_target.vore_verb,prey,lowertext(belly_target))
+
+	// Announce that we start the attempt!
+	for (var/mob/O in get_hearers_in_view(6, user))
+		O.show_message(attempt_msg)
+
+	// Now give the prey time to escape... return if they did
+	var/swallow_time = istype(prey, /mob/living/carbon/human) ? belly_target.human_prey_swallow_time : belly_target.nonhuman_prey_swallow_time
+	if (!do_mob(user, prey))
+		return 0; // User is not able to act upon prey
+	if(!do_after(user, swallow_time))
+		return 0 // Prey escpaed (or user disabled) before timer expired.
+
+	// If we got this far, nom successful! Announce it!
+	for (var/mob/O in get_hearers_in_view(6, user))
+		O.show_message(success_msg)
+
+	playsound(user, belly_target.vore_sound, 100, 1)
+
+	// Actually shove prey into the belly.
+	belly_target.nom_mob(prey, user)
+
+	// Inform Admins
+
+	if (pred == user)
+		message_admins("[key_name(pred)] ate [key_name(prey)]. ([pred ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[pred.x];Y=[pred.y];Z=[pred.z]'>JMP</a>" : "null"])")
+		log_attack("[key_name(pred)] ate [key_name(prey)]")
+	else if (prey == !client && stat != DEAD)
+		message_admins("[key_name(pred)] ate [key_name(prey)] (braindead) ([pred ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[pred.x];Y=[pred.y];Z=[pred.z]'>JMP</a>" : "null"])")
+		log_attack("[key_name(pred)] ate [key_name(prey)] (braindead)")
+	else
+		message_admins("[key_name(user)] forced [key_name(pred)] to eat [key_name(prey)]. ([pred ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[pred.x];Y=[pred.y];Z=[pred.z]'>JMP</a>" : "null"])")
+		log_attack("[key_name(user)] forced [key_name(pred)] to eat [key_name(prey)].")
+	return 1

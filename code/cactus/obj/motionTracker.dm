@@ -6,7 +6,7 @@
 	name = "motion tracker"
 	icon = 'code/cactus/obj/obj.dmi'
 	icon_state = "tracker"
-	desc = "A nifty handheld motion tracker that requires meson scanners to function properly. Won't pick up slow moving or miniscule movements."
+	desc = "A nifty handheld motion tracker that requires meson scanners to function properly."
 	flags = CONDUCT
 	slot_flags = SLOT_BELT
 	var/cooldown = 35
@@ -41,10 +41,13 @@
 		on = 0
 	*/
 /obj/item/device/t_scanner/motionTracker/attack_self(mob/user)
-	playsound(get_turf(src), soundToggle, 100, 0, -6)
+	playsound(get_turf(src), soundToggle, 100, 0, -5)
 	on = !on
 	if(on)
+		user << text("<span class='notice'>You turn on [src].</span>")
 		SSobj.processing |= src
+	if(!on)
+		user << text("<span class='notice'>You turn off [src].</span>")
 /*
 /obj/item/device/t_scanner/motionTracker/proc/updateIcons(var/obj/item/weapon/stock_parts/cell/C)
 	var/chargeFull = image('code/cactus/obj/obj.dmi', loc = src, icon_state = "trackerLightPowerFull")
@@ -77,15 +80,16 @@
 	for(var/turf/T in range(7, get_turf(src)) )
 		for(var/mob/O in T.contents)
 			var/mob/living/L = locate() in T
-			if(L && (get_turf(L) != get_turf(src)))
+			if(L && (get_turf(L) != get_turf(src)) && !L.stat)
 				flick_blip(O.loc)
-				playsound(get_turf(src),'code/cactus/sound/trackFull.ogg', 50, 0 ,-6)
+				playsound(get_turf(L),'code/cactus/sound/trackFull.ogg', 100, 0 ,0)
 			else
-				playsound(get_turf(src),'code/cactus/sound/trackHalf.ogg', 50, 0 ,-6)
+				playsound(get_turf(src),'code/cactus/sound/trackHalf.ogg', 50, 0 ,0)
+
 /obj/item/device/t_scanner/proc/flick_blip(turf/T)
 	var/image/B = image('code/cactus/obj/obj.dmi', T, icon_state = "blip")
 	var/list/nearby = list()
 	for(var/mob/M in viewers(T))
 		if(M.client)
 			nearby |= M.client
-			flick_overlay(B,nearby,8)
+			flick_overlay(B,nearby, 8)

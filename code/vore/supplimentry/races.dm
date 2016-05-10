@@ -4,7 +4,7 @@
 	default_color = "FFFFFF"
 	specflags = list(EYECOLOR,HAIR,LIPS,MUTCOLORS)
 	mutant_bodyparts = list("tail_human", "ears", "wings")
-	default_features = list("mcolor" = "FFF", "tail_human" = "fox", "ears" = "None", "wings" = "None"
+	default_features = list("mcolor" = "FFF", "tail_human" = "fox", "ears" = "None", "wings" = "None")
 	skinned_type = /obj/item/stack/sheet/animalhide/human // will have to custom make hides.
 	tail=1 //legacy, tbib
 	taur=1 //legacy
@@ -64,12 +64,6 @@ datum
 			generic="human"
 			adjective="ordinary"
 			taur="horse"
-		abductor
-			//name="abductor"
-			id="abductor"
-			generic="abductor"
-			adjective="spooky"
-			restricted=2
 		ailurus
 			name="red panda"
 			id="ailurus"
@@ -197,13 +191,13 @@ datum
 			generic="vulpine"
 			adjective="foxy"
 			tail=1
-		fox
+/*		fox
 			name="fox"
 			id="fox"
 			generic="vulpine"
 			adjective="foxy" // open and shut with this one, huh
 			tail=1
-			taur=1
+			taur=18 */
 		glowfen
 			name="glowfen"
 			id="glowfen"
@@ -329,8 +323,6 @@ datum
 		plant
 			generic="plant"
 			adjective="leafy"
-		plant/pod
-			restricted=1
 		porcupine
 			name="porcupine"
 			id="porcupine"
@@ -463,48 +455,6 @@ datum
 			generic="insect"
 			adjective="buzzy"
 			restricted=1
-		skeleton
-			generic="human"
-			adjective="very boney"
-			restricted=2
-			attack_verb = "bone"
-		cosmetic_skeleton
-			generic="skeleton"
-			adjective="not as boney"
-			restricted=2
-			attack_verb = "bone"
-		shadow
-			generic="darkness"
-			adjective="shady" // Jokes
-			restricted=2
-		golem
-			generic="golem"
-			adjective="rocky"
-			restricted=2
-		golem/adamantine
-			generic="golem"
-			adjective="rocky"
-			restricted=2
-		zombie
-			id="zombie"
-			generic="undead"
-			adjective="rotten"
-			restricted=2
-		cosmetic_zombie // considering renaming to zombie/cosmetic
-			id="zombie"
-			generic="undead"
-			adjective="particularly rotten"
-			restricted=2
-		plasmaman
-			id="plasmaman"
-			generic="plasmaman"
-			adjective="toxic"
-			restricted=2 // don't comment these out if you don't want the world to burn
-		plasmaman/skin
-			id="plasmaman"
-			generic="plasmaman"
-			adjective="toxic"
-			restricted=2 // but if you do want the world to burn then please, by all means
 		pepsiman
 			//name="PEPSI MAAAAAN"
 			id="PEPSIMAAAN"
@@ -535,7 +485,7 @@ datum
 			adjective="fishy"
 			tail=0
 			eyes="jelleyes"
-/*var/list/kpcode_race_list
+var/list/kpcode_race_list
 
 proc/kpcode_race_genlist()
 	if(!kpcode_race_list)
@@ -544,7 +494,7 @@ proc/kpcode_race_genlist()
 		for(var/path in paths)
 			var/datum/species/D = new path()
 			if(D.name!="undefined")
-				kpcode_race_list[D.name] = D*/
+				kpcode_race_list[D.name] = D
 
 proc/kpcode_race_getlist(var/restrict=0)
 	var/list/race_options = list()
@@ -702,7 +652,7 @@ proc/kpcode_hastail(var/S)
 
 proc/kpcode_cantaur(var/S)
 	return kpcode_race_taur(S)
-
+/*
 /mob/living/proc/underwear_toggle()
 	set name = "Force Update"
 	set category = "Vore"
@@ -712,4 +662,4 @@ proc/kpcode_cantaur(var/S)
 		//updateappearance(src)
 		src.update_body()
 	else
-		src<<"Humans only."
+		src<<"Humans only."*/

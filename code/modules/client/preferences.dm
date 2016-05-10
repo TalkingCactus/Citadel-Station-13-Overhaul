@@ -83,6 +83,10 @@ var/list/preferences_datums = list()
 	var/playerscale = RESIZE_NORMAL		//Custom playerscale
 	var/list/belly_prefs = list()
 	var/digestable = 1
+	var/mutant_wing = "none"
+	var/wingcolor = "FFF"
+	var/special_color[COLOUR_LIST_SIZE]
+	var/be_taur=0
 
 		// Want randomjob if preferences already filled - Donkie
 	var/userandomjob = 1 //defaults to 1 for fewer assistants
@@ -202,8 +206,33 @@ var/list/preferences_datums = list()
 
 			if(config.mutant_races)
 				dat += "<b>Species:</b><BR><a href='?_src_=prefs;preference=species;task=input'>[pref_species.name]</a><BR>"
+			if(config.mutant_races)
+				dat += "<b>Species:</b><BR><a href='?_src_=prefs;preference=species;task=input'>[pref_species.id]</a><BR>"
+				dat += "<b>Taur:</b><a href='?_src_=prefs;preference=be_taur;task=input'>[be_taur ? "Yes" : "No"]</a>"
+				if(!kpcode_cantaur(pref_species.id))
+					dat += " (not available for [pref_species.id])"
+				dat += "<BR>"
+				if(special_color[1])
+					dat += "<span style='border:1px solid #161616; background-color: #[special_color[1]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=special_color;which=1;task=input'>Primary</a><BR>"
+				else
+					dat += "<a href='?_src_=prefs;preference=special_color;which=1;task=input'>Primary?</a><BR>"
+				if(special_color[2])
+					dat += "<span style='border:1px solid #161616; background-color: #[special_color[2]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=special_color;which=2;task=input'>Secondary</a><BR>"
+				else
+					dat += "<a href='?_src_=prefs;preference=special_color;which=2;task=input'>Secondary?</a><BR>"
+				if(special_color[3])
+					dat += "<span style='border:1px solid #161616; background-color: #[special_color[3]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=special_color;which=3;task=input'>Tertiary</a><BR>"
+				else
+					dat += "<a href='?_src_=prefs;preference=special_color;which=3;task=input'>Tertiary?</a><BR>"
 			else
 				dat += "<b>Species:</b> Human<BR>"
+
+			dat += "<b>Size:</b> <a href='?_src_=prefs;preference=character_size;task=input'>[playerscale]</a><BR>"
+
+			dat += "<h3>Wings</h3>"
+			dat += "<a href='?_src_=prefs;preference=mutant_wing;task=input'>[mutant_wing]</a><BR>"
+			dat += "<span style='border: 1px solid #161616; background-color: #[wingcolor];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=wingcolor;task=input'>Change</a><BR>"
+
 
 			dat += "<b>Blood Type:</b> [blood_type]<BR>"
 			dat += "<b>Underwear:</b><BR><a href ='?_src_=prefs;preference=underwear;task=input'>[underwear]</a><BR>"
@@ -254,7 +283,7 @@ var/list/preferences_datums = list()
 
 			if(config.mutant_races) //We don't allow mutant bodyparts for humans either unless this is true.
 
-				if((MUTCOLORS in pref_species.specflags) || (MUTCOLORS_PARTSONLY in pref_species.specflags))
+			/*	if((MUTCOLORS in pref_species.specflags) || (MUTCOLORS_PARTSONLY in pref_species.specflags))
 
 					dat += "<td valign='top' width='21%'>"
 
@@ -262,7 +291,7 @@ var/list/preferences_datums = list()
 
 					dat += "<span style='border: 1px solid #161616; background-color: #[features["mcolor"]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=mutant_color;task=input'>Change</a><BR>"
 
-					dat += "</td>"
+					dat += "</td>" */
 
 				if("tail_lizard" in pref_species.mutant_bodyparts)
 					dat += "<td valign='top' width='7%'>"
@@ -941,6 +970,24 @@ var/list/preferences_datums = list()
 						else
 							user << "<span class='danger'>Invalid color. Your color is not bright enough.</span>"
 
+				if("special_color")
+					var/index_tc=href_list["which"]
+					switch(alert("Use a special colour for #[index_tc]?","Character Preference","Yes","No","Cancel"))
+						if("Yes")
+							var/new_color = input(user, "Choose colour #[index_tc]:", "Character Preference") as null|color
+							if(new_color)
+								special_color[text2num(index_tc)] = sanitize_hexcolor(new_color)
+						if("No")
+							special_color[text2num(index_tc)]=null
+
+				if("be_taur")
+					be_taur = !be_taur
+
+				if("character_size")
+					var/new_size = input(user, "Choose your character's size:", "Character Preference")  in list("huge", "large", "normal", "small", "tiny")
+					if(new_size)
+						playerscale=new_size
+
 				if("tail_lizard")
 					var/new_tail
 					new_tail = input(user, "Choose your character's tail:", "Character Preference") as null|anything in tails_list_lizard
@@ -971,11 +1018,15 @@ var/list/preferences_datums = list()
 					if(new_ears)
 						features["ears"] = new_ears
 
-			//	if("wings")
-			//		var/new_wings
-			//		new_wings = input(user, "Choose your character's wings:", "Character Preference") as null|anything in wings_list
-			//		if(new_wings)
-			//			features["wings"] = new_wings
+				if("mutant_wing")
+					var/new_mutant_wing = input(user, "Choose your character's wings:", "Character Preference")  as null|anything in mutant_wings
+					if(new_mutant_wing)
+						mutant_wing = new_mutant_wing
+
+				if("wingcolor")
+					var/new_wingcolor = input(user, "Choose your character's wing colour:", "Character Preference") as color|null
+					if(new_wingcolor)
+						wingcolor = sanitize_hexcolor(new_wingcolor)
 
 				if("frills")
 					var/new_frills
@@ -1202,22 +1253,28 @@ var/list/preferences_datums = list()
 	character.flavor_text = flavor_text
 
 	if(!length(belly_prefs))
-	//	log_debug("Newvore: Giving default stomach to [character] since belly_prefs is empty")
-		var/datum/belly/stomach = new/datum/belly(src)
-		stomach.name = "Stomach"
-		stomach.inside_flavor = "Just the slimy inside of [character]'s stomach!"
-		stomach.immutable = 1
-		belly_prefs["Stomach"] = stomach
+		var/datum/belly/B = new /datum/belly(src)
+		B.immutable = 1
+		B.name = "Stomach"
+		B.inside_flavor = "It appears to be rather warm and wet. Makes sense, considering it's inside \the [character]."
+		belly_prefs[B.name] = B
 
 	character.vore_organs = belly_prefs
 
 	character.vore_selected = character.vore_organs[1]
 
-	for(var/O in character.vore_organs)
-		var/datum/belly/B = character.vore_organs[O]
+	for(var/I in character.vore_organs)
+		var/datum/belly/B = character.vore_organs[I]
 		B.owner = character
 
 	character.digestable = digestable
+
+	if(mutant_wing != "none" && config.mutant_races)
+		character.dna.mutantwing = mutant_wing
+		character.dna.wingcolor=wingcolor
+	if(be_taur)
+		character.dna.taur=1
+	character.dna.special_color = special_color
 
 	character.eye_color = eye_color
 	character.hair_color = hair_color

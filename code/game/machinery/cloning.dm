@@ -177,6 +177,16 @@
 	H.adjustBrainLoss(CLONE_INITIAL_DAMAGE)
 	H.Paralyse(4)
 
+	if(H.client.prefs)
+		H.vore_organs = H.client.prefs.belly_prefs.Copy()
+		for(var/I in H.vore_organs)
+			var/datum/belly/B = H.vore_organs[I]
+			B.owner = H
+			B.internal_contents = list()
+			B.digest_mode = DM_HOLD
+
+//	H.flavor_texts = R.flavor.Copy()
+
 	clonemind.transfer_to(H)
 	H.ckey = ckey
 	H << "<span class='notice'><b>Consciousness slowly creeps over you as your body regenerates.</b><br><i>So this is what cloning feels like?</i></span>"

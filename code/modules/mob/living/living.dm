@@ -56,7 +56,6 @@ Sorry Giacom. Please don't be mad :(
 					"The onslaught against your body doesn't seem to be letting up; you're food now.",
 					"The insides work on you like they would any other food.")
 
-
 /mob/living/Destroy()
 	..()
 

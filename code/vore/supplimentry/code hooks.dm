@@ -191,3 +191,15 @@ voreconstants.dm needs to be in _DEFINES
 			t = copytext(t, 1, index) + repl_chars[char] + copytext(t, index+5)
 			index = findtext(t, char)
 	return t
+
+/* to cloning.dm
+	if(H.client.prefs)
+		H.vore_organs = H.client.prefs.belly_prefs.Copy()
+		for(var/I in H.vore_organs)
+			var/datum/belly/B = H.vore_organs[I]
+			B.owner = H
+			B.internal_contents = list()
+			B.digest_mode = DM_HOLD
+
+	H.flavor_texts = R.flavor.Copy()
+	*/

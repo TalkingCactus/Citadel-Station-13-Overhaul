@@ -35,19 +35,19 @@ proc/generate_colour_icon(var/fil_chk=null,var/state=null,var/list/lst=null,var/
 			rtn_lst += colourized
 	return rtn_lst
 
-/mob/living/carbon/human/var/heterochromia=0
+//mob/living/carbon/human/var/heterochromia=0
 
 /datum/dna
-	var/mutanttail	//Narky code~
+//	var/mutanttail	//Narky code~
 	var/mutantwing
 	var/wingcolor="FFF"
 	var/special_color[COLOUR_LIST_SIZE]
-	var/global/const/COCK_NONE=0
-	var/global/const/COCK_NORMAL=1
-	var/global/const/COCK_HYPER=2
-	var/global/const/COCK_DOUBLE=3
-	var/list/cock=list("has"=COCK_NONE,"type"="human","color"="900")
-	var/vagina=0
+//	var/global/const/COCK_NONE=0
+//	var/global/const/COCK_NORMAL=1
+//	var/global/const/COCK_HYPER=2
+//	var/global/const/COCK_DOUBLE=3
+//	var/list/cock=list("has"=COCK_NONE,"type"="human","color"="900")
+//	var/vagina=0
 	var/datum/special_mutant/special
 	var/taur=0 //TEMP!
 //	var/mob/living/simple_animal/naga_segment/naga=null //ALSO TEMP!
@@ -100,7 +100,7 @@ proc/generate_colour_icon(var/fil_chk=null,var/state=null,var/list/lst=null,var/
 	else
 		block_gen = construct_block(species_list.len+1, species_list.len+1)
 	return block_gen
-
+/*
 /mob/living/proc/set_mutantrace(var/new_mutantrace=null)
 //	new_mutantrace=kpcode_race_san(new_mutantrace)
 	var/datum/dna/dna=has_dna(src)
@@ -127,7 +127,7 @@ proc/generate_colour_icon(var/fil_chk=null,var/state=null,var/list/lst=null,var/
 	var/datum/dna/dna=has_dna(src)
 	if(!dna)return
 	dna.uni_identity = setblock(dna.uni_identity, DNA_COCK_BLOCK, dna.generate_cock_block())
-
+*/
 
 /mob/living/proc/is_taur()
 	if(istype(src,/mob/living/carbon/human)&&src:dna&&src:dna:taur)
@@ -151,7 +151,7 @@ proc/generate_colour_icon(var/fil_chk=null,var/state=null,var/list/lst=null,var/
 		return "alien"
 	return 0
 
-*/
+
 /mob/living/proc/has_cock()
 	if(issilicon(src))return 0
 	if(istype(src,/mob/living/carbon))
@@ -177,12 +177,12 @@ proc/generate_colour_icon(var/fil_chk=null,var/state=null,var/list/lst=null,var/
 
 /mob/living/proc/has_boobs()
 	if(issilicon(src))return 0
-	return gender==FEMALE
+	return gender==FEMALE*/
 
 /mob/living/proc/vore_dna_mod(var/new_dna)
-	var/mutanttail
+//	var/mutanttail
 	var/mutantwing
 	var/special_color[COLOUR_LIST_SIZE]
 	var/mob/living/carbon/C=src
-	var/old_name=C.real_name
-	var/datum/dna/change_dna=new_dna
+//	var/old_name=C.real_name
+//	var/datum/dna/change_dna=new_dna

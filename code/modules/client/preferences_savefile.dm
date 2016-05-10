@@ -331,6 +331,12 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["undershirt"]			>> undershirt
 	S["socks"]				>> socks
 	S["backbag"]			>> backbag
+
+	S["mutant_wing"]		>> mutant_wing
+	S["wingcolor"]			>> wingcolor
+	S["special_color"]		>> special_color
+	S["be_taur"]			>> be_taur
+
 	S["feature_mcolor"]					>> features["mcolor"]
 	S["feature_lizard_tail"]			>> features["tail_lizard"]
 	S["feature_lizard_snout"]			>> features["snout"]
@@ -394,6 +400,11 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	eye_color		= sanitize_hexcolor(eye_color, 3, 0)
 	skin_tone		= sanitize_inlist(skin_tone, skin_tones)
 	backbag			= sanitize_inlist(backbag, backbaglist, initial(backbag))
+
+	mutant_wing 	= sanitize_text(mutant_wing, initial(mutant_wing))
+	wingcolor		= sanitize_hexcolor(wingcolor, 3, 0)
+	special_color	= sanitize_colour_list(special_color)
+
 	features["mcolor"]	= sanitize_hexcolor(features["mcolor"], 3, 0)
 	features["tail_lizard"]	= sanitize_inlist(features["tail_lizard"], tails_list_lizard)
 	features["tail_human"] 	= sanitize_inlist(features["tail_human"], tails_list_human, "None")
@@ -445,6 +456,12 @@ SAVEFILE UPDATING/VERSIONING - 'Simplified', or rather, more coder-friendly ~Car
 	S["socks"]				<< socks
 	S["backbag"]			<< backbag
 	S["species"]			<< pref_species.id
+
+	S["mutant_wing"]		<< mutant_wing
+	S["wingcolor"]			<< wingcolor
+	S["special_color"]		<< special_color
+	S["be_taur"]			<< be_taur
+
 	S["feature_mcolor"]					<< features["mcolor"]
 	S["feature_lizard_tail"]			<< features["tail_lizard"]
 	S["feature_human_tail"]				<< features["tail_human"]

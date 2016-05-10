@@ -30,24 +30,22 @@ belly_prefs["immutable"] = BOOLEAN
 	var/vore_sound = 'sound/vore/gulp.ogg'	// Sound when ingesting someone
 	var/vore_verb = "ingest"				// Verb for eating with this in messages
 	var/human_prey_swallow_time = 100		// Time in deciseconds to swallow /mob/living/carbon/human
-	var/nonhuman_prey_swallow_time = 50		// Time in deciseconds to swallow anything else
+	var/nonhuman_prey_swallow_time = 30		// Time in deciseconds to swallow anything else
+	var/emoteTime = 600						// How long between stomach emotes at prey
 	var/digest_brute = 1					// Brute damage per tick in digestion mode
 	var/digest_burn = 1						// Burn damage per tick in digestion mode
 	var/digest_tickrate = 3					// Modulus this of air controller tick number to iterate gurgles on
 	var/immutable = 0						// Prevents this belly from being deleted
-	var/integrity= 100						// Integrity of the actual belly, for harm struggling to get out
-//	var/assoc_loc="chest"					// For extraction surgery TBD
+	var/integrity = 100
 
 	var/tmp/digest_mode = DM_HOLD				// Whether or not to digest. Default to not digest.
 	var/tmp/mob/living/owner					// The mob whose belly this is.
 	var/tmp/list/internal_contents = list()		// People/Things you've eaten into this belly!
 	var/tmp/is_full								// Flag for if digested remeans are present. (for disposal messages)
 	var/tmp/recent_struggle = 0					// Flag to prevent struggle emote spam
-	var/emoteTime = 600						// How long between stomach emotes at prey
 	var/tmp/emotePend = 0						// If there's already a spawned thing counting for the next emote
 
 	// Don't forget to watch your commas at the end of each line if you change these.
-
 	var/list/struggle_messages_outside = list(
 		"%pred's %belly wobbles with a squirming meal.",
 		"%pred's %belly jostles with movement.",
@@ -92,6 +90,10 @@ belly_prefs["immutable"] = BOOLEAN
 		"%pred's %belly kneads on every fiber of your body, softening you down into mush to fuel their next hunt.",
 		"%pred's %belly churns you down into a hot slush. Your nutrient-rich remains course through their digestive track with a series of long, wet glorps.")
 
+	var/list/examine_messages = list(
+		"They have something solid in their %belly!",
+		"It looks like they have something in their %belly!")
+
 	var/list/vore_sounds = list(
 		"Gulp" = 'sound/vore/gulp.ogg',
 		"Insert" = 'sound/vore/insert.ogg',
@@ -130,11 +132,6 @@ belly_prefs["immutable"] = BOOLEAN
 /datum/belly/proc/release_all_contents()
 	var/tick = 0 //easiest way to check if the list has anything
 	for (var/atom/movable/M in internal_contents)
-		if(istype(M,/mob/living))
-		//	var/mob/living/ML = M
-		//	if(ML.absorbed)
-			continue
-
 		M.loc = owner.loc  // Move the belly contents into the same location as belly's owner.
 		src.internal_contents -= M  // Remove from the belly contents
 
@@ -154,19 +151,13 @@ belly_prefs["immutable"] = BOOLEAN
 /datum/belly/proc/release_specific_contents(var/atom/movable/M)
 	if (!(M in internal_contents))
 		return 0 // They weren't in this belly anyway
+
 	M.loc = owner.loc  // Move the belly contents into the same location as belly's owner.
 	src.internal_contents -= M  // Remove from the belly contents
 
-//	if(istype(M,/mob/living))
-	//	var/mob/living/ML = M
-	//	ML.absorbed = 0
-
-	if (isliving(owner.loc)) // This makes sure that the mob behaves properly if released into another mob
-		var/mob/living/loc_mob = owner.loc
-		for (var/bellytype in loc_mob.vore_organs)
-			var/datum/belly/belly = loc_mob.vore_organs[bellytype]
-			if (owner in belly.internal_contents)
-				belly.internal_contents += M
+	var/datum/belly/B = check_belly(M.loc)
+	if(B)
+		B.internal_contents += M
 
 	owner.visible_message("<font color='green'><b>[owner] expels [M] from their [lowertext(name)]!</b></font>")
 	owner.update_icons()
@@ -191,13 +182,20 @@ belly_prefs["immutable"] = BOOLEAN
 // is examined.   By making this a proc, we not only take advantage of polymorphism,
 // but can easily make the message vary based on how many people are inside, etc.
 // Returns a string which shoul be appended to the Examine output.
-/datum/belly/proc/get_examine_msg(t_He, t_his, t_him, t_has, t_is)
-	return
+/datum/belly/proc/get_examine_msg()
+	if(internal_contents.len && examine_messages.len)
+		var/formatted_message
+		var/raw_message = pick(examine_messages)
+
+		formatted_message = replacetext(raw_message,"%belly",lowertext(name))
+
+		return("<span class='warning'>[formatted_message]</span><BR>")
+
 // The next function gets the messages set on the belly, in human-readable format.
 // This is useful in customization boxes and such. The delimiter right now is \n\n so
 // in message boxes, this looks nice and is easily delimited.
 /datum/belly/proc/get_messages(var/type, var/delim = "\n\n")
-	ASSERT(type == "smo" || "smi" || "dmo" || "dmp")
+	ASSERT(type == "smo" || type == "smi" || type == "dmo" || type == "dmp" || type == "em")
 	var/list/raw_messages
 
 	switch(type)
@@ -209,6 +207,8 @@ belly_prefs["immutable"] = BOOLEAN
 			raw_messages = digest_messages_owner
 		if("dmp")
 			raw_messages = digest_messages_prey
+		if("em")
+			raw_messages = examine_messages
 
 	var/messages = list2text(raw_messages,delim)
 	return messages
@@ -217,17 +217,17 @@ belly_prefs["immutable"] = BOOLEAN
 // replacement strings and linebreaks as delimiters (two \n\n by default).
 // They also sanitize the messages.
 /datum/belly/proc/set_messages(var/raw_text, var/type, var/delim = "\n\n")
-	ASSERT(type == "smo" || type == "smi" || type == "dmo" || type == "dmp")
+	ASSERT(type == "smo" || type == "smi" || type == "dmo" || type == "dmp" || type == "em")
 
 	var/list/raw_list = text2list(html_encode(raw_text),delim)
 	if(raw_list.len > 10)
 		raw_list.Cut(11)
-		log_game("[owner] tried to set [name] with 11+ messages")
+		log_admin("[owner] tried to set [name] with 11+ messages")
 
 	for(var/i = 1, i <= raw_list.len, i++)
 		if(length(raw_list[i]) > 160 || length(raw_list[i]) < 10) //160 is fudged value due to htmlencoding increasing the size
 			raw_list.Cut(i,i)
-			log_game("[owner] tried to set [name] with >121 or <10 char message")
+			log_admin("[owner] tried to set [name] with >121 or <10 char message")
 		else
 			raw_list[i] = readd_quotes(raw_list[i])
 			//Also fix % sign for var replacement
@@ -244,9 +244,10 @@ belly_prefs["immutable"] = BOOLEAN
 			digest_messages_owner = raw_list
 		if("dmp")
 			digest_messages_prey = raw_list
+		if("em")
+			examine_messages = raw_list
 
 	return
-
 // Relay the sounds of someone struggling in a belly to those outside!
 // Called from /mob/living/carbon/relaymove()
 /datum/belly/proc/relay_struggle(var/mob/user, var/direction)
@@ -274,7 +275,6 @@ belly_prefs["immutable"] = BOOLEAN
 					SubPrey << "As [M] melts away around you, you find yourself in [src.owner]'s [name]"
 
 	//Drop all items into the belly.
-
 	W.loc = src.owner
 	internal_contents += W
 

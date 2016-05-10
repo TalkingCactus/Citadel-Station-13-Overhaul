@@ -383,6 +383,7 @@
 			"Digest Message (to you)",
 			"Struggle Message (outside)",
 			"Struggle Message (inside)",
+			"Examine Message (when full)",
 			"Reset All To Default",
 			"Cancel - No Changes"
 		)
@@ -411,6 +412,11 @@
 				var/new_message = input(user,"These are sent to prey when they struggle. Write them in 2nd person ('you feel X'). Avoid using %prey in this type."+help,"Struggle Message (inside)",selected.get_messages("smi")) as message
 				if(new_message)
 					selected.set_messages(new_message,"smi")
+
+			if("Examine Message (when full)")
+				var/new_message = input(user,"These are sent to people who examine you when this belly has contents. Write them in 3rd person ('Their %belly is bulging'). Do not use %pred or %prey in this type."+help,"Examine Message (when full)",selected.get_messages("em")) as message
+				if(new_message)
+					selected.set_messages(new_message,"em")
 
 			if("Reset All To Default")
 				var/confirm = alert(user,"This will delete any custom messages. Are you sure?","Confirmation","DELETE","Cancel")

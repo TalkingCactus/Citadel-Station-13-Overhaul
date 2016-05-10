@@ -111,7 +111,7 @@ V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEE
 	set name = "Save Vore Prefs"
 	set category = "Vore"
 
-	var/result
+	var/result = 0
 
 	if(client.prefs)
 		result = client.prefs.save_vore_preferences()

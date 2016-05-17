@@ -55,7 +55,12 @@
 						stomach_contents.Remove(A)
 					src.gib()
 
-/mob/living/carbon/gib(animation = 1, var/no_brain = 0)
+	for (var/bellytype in src.vore_organs)
+		var/datum/belly/belly = src.vore_organs[bellytype]
+		if (user in belly.internal_contents)
+			belly.relay_struggle(user, direction)
+
+/mob/living/carbon/gib(animation = 1, var/no_brain = 0, var/mob/M)
 	death(1)
 	for(var/obj/item/organ/internal/I in internal_organs)
 		if(no_brain && istype(I, /obj/item/organ/internal/brain))
@@ -65,11 +70,15 @@
 			I.loc = get_turf(src)
 			I.throw_at_fast(get_edge_target_turf(src,pick(alldirs)),rand(1,3),5)
 
-	for(var/mob/M in src)
-		if(M in stomach_contents)
-			stomach_contents.Remove(M)
-		M.loc = loc
-		visible_message("<span class='danger'>[M] bursts out of [src]!</span>")
+	if(M in stomach_contents)
+		stomach_contents.Remove(M)
+
+	for (var/bellytype in src.vore_organs)
+		var/datum/belly/belly = src.vore_organs[bellytype]
+		if(M in belly.internal_contents)
+			M.loc = loc
+
+	visible_message("<span class='danger'>[M] bursts out of [src]!</span>")
 	. = ..()
 
 

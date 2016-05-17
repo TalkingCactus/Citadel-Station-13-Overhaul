@@ -17,7 +17,7 @@
 // This is, of course, just intended as a quick fix so that people can repair their own tails and taur bodies without admins having to get involved.
 
 mob/proc/fixtaur()
-	set name = "Fix size scale issues"
+	set name = "Fix taur/naga body"
 	set category = "Resize"
 	var/lastplayerscale = src.playerscale
 	src.playerscale = 1

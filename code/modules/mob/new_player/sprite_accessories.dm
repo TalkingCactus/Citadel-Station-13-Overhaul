@@ -1367,3 +1367,18 @@
 /datum/sprite_accessory/spines_animated/aqautic
 	name = "Aquatic"
 	icon_state = "aqua"
+
+///////////////////////// Canines
+
+/datum/sprite_accessory/canine_species
+	icon= 'icon/mob/special/furryrace.dmi'
+
+/datum/sprite_accessory/canine_species/fox
+	name = "fox"
+	icon_state = "fox"
+	gender_specific = 1
+
+datum/sprite/accessory/canine_species/wolf
+	name = "wolf"
+	icon_state = "wolf"
+	gender_specific = 1

@@ -40,6 +40,17 @@
 	for(var/obj/item/organ/internal/I in internal_organs)
 		I.Insert(src)
 
+	if(length(vore_organs) == 0)
+		//Give them a stomach as default so they aren't helpless.
+		vore_organs["Stomach"] = new /datum/belly(src)
+		if(vore_organs["Stomach"])
+			var/datum/belly/setup = vore_organs["Stomach"]
+			setup.name = "Stomach"
+			setup.inside_flavor = "The slimy inside of [setup.owner]'s stomach!"
+			setup.vore_sound = 'sound/vore/gulp.ogg'
+			setup.vore_verb = "swallow"
+			setup.immutable = 1
+
 	make_blood()
 
 	martial_art = default_martial_art

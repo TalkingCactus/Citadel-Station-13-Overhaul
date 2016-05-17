@@ -8,6 +8,19 @@
 
 #define ishuman(A) (istype(A, /mob/living/carbon/human))
 
+// Human sub-species
+#define isabductor(A) (is_species(A, /datum/species/abductor))
+#define isgolem(A) (is_species(A, /datum/species/golem))
+#define islizard(A) (is_species(A, /datum/species/lizard))
+#define isplasmaman(A) (is_species(A, /datum/species/plasmaman))
+#define ispodperson(A) (is_species(A, /datum/species/podperson))
+#define isflyperson(A) (is_species(A, /datum/species/fly))
+
+// Furry races
+#define iscanine(A) (is_species(A, /datum/species/canine))
+#define isfeline(A) (is_species(A, /datum/species/feline))
+#define isavian(A) (is_species(A, /datum/species/avian))
+
 #define ismonkey(A) (istype(A, /mob/living/carbon/monkey))
 
 #define isbrain(A) (istype(A, /mob/living/carbon/brain))
@@ -31,6 +44,8 @@
 #define iscat(A) (istype(A, /mob/living/simple_animal/pet/cat))
 
 #define ismouse(A) (istype(A, /mob/living/simple_animal/mouse))
+
+#define isconstruct(A) (istype(A, /mob/living/simple_animal/hostile/construct))
 
 #define isbear(A) (istype(A, /mob/living/simple_animal/hostile/bear))
 
@@ -60,7 +75,7 @@
 
 #define isguardian(A) (istype(A, /mob/living/simple_animal/hostile/guardian))
 
-#define islimb(A) (istype(A, /obj/item/organ/limb))
+#define islimb(A) (istype(A, /obj/item/bodypart))
 
 #define isbot(A) (istype(A, /mob/living/simple_animal/bot))
 

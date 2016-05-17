@@ -29,26 +29,7 @@ V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEE
 /mob/living/simple_animal
 	var/isPredator = 0 					//Are they capable of performing and pre-defined vore actions for their species?
 	var/swallowTime = 30 				//How long it takes to eat its prey in 1/10 of a second. The default is 3 seconds.
-	var/backoffTime = 50 				//How long to exclude an escaped mob from being re-eaten.
-	var/gurgleTime = 600				//How long between stomach emotes at prey
 	var/list/prey_excludes = list()		//For excluding people from being eaten.
-
-	//We have some default emotes for mobs to do to their prey.
-	var/list/stomach_emotes = list(
-									"The insides knead at you gently for a moment.",
-									"The guts glorp wetly around you as some air shifts.",
-									"Your predator takes a deep breath and sighs, shifting you somewhat.",
-									"The stomach squeezes you tight for a moment, then relaxes.",
-									"During a moment of quiet, breathing becomes the most audible thing.",
-									"The warm slickness surrounds and kneads on you.")
-	var/list/stomach_emotes_d = list(
-									"The caustic acids eat away at your form.",
-									"The acrid air burns at your lungs.",
-									"Without a thought for you, the stomach grinds inwards painfully.",
-									"The guts treat you like food, squeezing to press more acids against you.",
-									"The onslaught against your body doesn't seem to be letting up; you're food now.",
-									"The insides work on you like they would any other food.")
-	var/list/digest_emotes = list()		//To send when digestion finishes
 
 /mob/living/simple_animal/verb/toggle_digestion()
 	set name = "Toggle Animal's Digestion"
@@ -57,7 +38,9 @@ V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEE
 	set src in oview(1)
 
 	var/datum/belly/B = vore_organs[vore_selected]
-
+	if(faction != usr.faction)
+		usr << "\red This predator isn't friendly, and doesn't give a shit about your opinions of it digesting you."
+		return
 	if(B.digest_mode == "Hold")
 		var/confirm = alert(usr, "Enabling digestion on [name] will cause it to digest all stomach contents. Using this to break OOC prefs is against the rules. Digestion will disable itself after 20 minutes.", "Enabling [name]'s Digestion", "Enable", "Cancel")
 		if(confirm == "Enable")
@@ -105,6 +88,19 @@ V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEE
 	src << "<span class='notice'>[vore_selected] selected.</span>"
 
 //
+//	Belly searching for simplifying other procs
+//
+/proc/check_belly(atom/movable/A)
+	if(istype(A.loc,/mob/living))
+		var/mob/living/M = A.loc
+		for(var/I in M.vore_organs)
+			var/datum/belly/B = M.vore_organs[I]
+			if(A in B.internal_contents)
+				return(B)
+
+	return 0
+
+//
 //	Verb for saving vore preferences to save file
 //
 /mob/living/proc/save_vore_prefs()
@@ -117,7 +113,7 @@ V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEE
 		result = client.prefs.save_vore_preferences()
 	else
 		src << "<span class='warning'>You attempted to save your vore prefs but somehow you're in this character without a client.prefs variable. Tell a dev.</span>"
-		log_admin("[src] tried to save vore prefs but lacks a client.prefs var.")
+		log_debug("[src] tried to save vore prefs but lacks a client.prefs var.")
 
 	return result
 
@@ -126,8 +122,7 @@ V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEE
 //
 /mob/living/proc/apply_vore_prefs(var/list/bellies)
 	if(!bellies || bellies.len == 0)
-		log_admin("Tried to apply bellies to [src] and failed.")
-
+		log_debug("Tried to apply bellies to [src] and failed.")
 
 //
 //	Proc for updating vore organs and digestion/healing/absorbing
@@ -138,7 +133,7 @@ V::::::V           V::::::VO:::::::OOO:::::::ORR:::::R     R:::::REE::::::EEEEEE
 		for(var/atom/movable/M in B.internal_contents)
 			if(M.loc != src)
 				B.internal_contents -= M
-				log_admin("Had to remove [M] from belly [B] in [src]")
+				log_debug("Had to remove [M] from belly [B] in [src]")
 		B.process_Life()
 
 //

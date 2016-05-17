@@ -59,7 +59,12 @@ var/list/preferences_datums = list()
 	var/skin_tone = "caucasian1"		//Skin color
 	var/eye_color = "000"				//Eye color
 	var/datum/species/pref_species = new /datum/species/human()	//Mutant race
-	var/list/features = list("mcolor" = "FFF", "tail_lizard" = "Smooth", "tail_human" = "None", "snout" = "Round", "horns" = "None", "ears" = "None", "wings" = "None", "frills" = "None", "spines" = "None", "body_markings" = "None")
+	var/list/features = list("mcolor" = "FFF", "tail_lizard" = "Smooth", "tail_human" = "None",
+		"snout" = "Round", "horns" = "None", "ears" = "None",
+		"wings" = "None", "frills" = "None", "spines" = "None",
+		"body_markings" = "None", "canine_features" = "None",
+		"feline_features" = "None", "avian_features" = "None",
+		"tuar" = "None")
 
 	var/list/custom_names = list("clown", "mime", "ai", "cyborg", "religion", "deity")
 	var/adminmusicvolume = 50
@@ -347,6 +352,42 @@ var/list/preferences_datums = list()
 
 					dat += "</td>"
 
+				if("avian_features" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Bird</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["ears"]]</a><BR>"
+
+					dat += "</td>"
+
+				if("feline_features" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Feline</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["feline_features"]]</a><BR>"
+
+					dat += "</td>"
+
+				if("canine_features" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Canine</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["canine_features"]]</a><BR>"
+
+					dat += "</td>"
+
+				if("taur" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Taur</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["taur"]]</a><BR>"
+
+					dat += "</td>"
+
 			if(config.mutant_humans)
 
 				if("tail_human" in pref_species.mutant_bodyparts)
@@ -366,6 +407,7 @@ var/list/preferences_datums = list()
 					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["ears"]]</a><BR>"
 
 					dat += "</td>"
+
 
 				if("wings" in pref_species.mutant_bodyparts)	//TODO: make specific body parts be toggleable via config or something.
 					dat += "<td valign='top' width='7%'>"
@@ -980,9 +1022,6 @@ var/list/preferences_datums = list()
 						if("No")
 							special_color[text2num(index_tc)]=null
 
-				if("be_taur")
-					be_taur = !be_taur
-
 				if("character_size")
 					var/new_size = input(user, "Choose your character's size:", "Character Preference")  in list("huge", "large", "normal", "small", "tiny")
 					if(new_size)
@@ -1017,6 +1056,30 @@ var/list/preferences_datums = list()
 					new_ears = input(user, "Choose your character's ears:", "Character Preference") as null|anything in ears_list
 					if(new_ears)
 						features["ears"] = new_ears
+
+				if("canine_species")
+					var/new_canine_species
+					new_canine_species = input(user, "Choose your Canine species:", "Character Preference") as null|anything in canine_species_list
+					if(new_canine_species)
+						features["canine_species"] = new_canine_species
+
+				if("feline_species")
+					var/new_feline_species
+					new_feline_species = input(user, "Choose your Feline species:", "Character Preference") as null|anything in feline_species_list
+					if(new_feline_species)
+						features["feline_species"] = new_feline_species
+
+				if("avian_species")
+					var/new_avian_species
+					new_avian_species = input(user, "Choose your Avian species:", "Character Preference") as null|anything in avian_species_list
+					if(new_avian_species)
+						features["avian_species"] = new_avian_species
+
+				if("taur")
+					var/new_taur
+					new_taur = input(user, "Choose your character's tauric half:", "Character Preference") as null|anything in taur_list
+					if(new_taur)
+						features["taur"] = new_taur
 
 				if("mutant_wing")
 					var/new_mutant_wing = input(user, "Choose your character's wings:", "Character Preference")  as null|anything in mutant_wings

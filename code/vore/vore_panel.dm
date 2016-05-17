@@ -157,13 +157,14 @@
 	dat += "<a href='?src=\ref[src];saveprefs=1'>Save Prefs</a>"
 	dat += "<a href='?src=\ref[src];refresh=1'>Refresh</a>"
 
+	if((user.digestable != 1) && (user.digestable != 0))
+		user.digestable = 1
+
 	switch(user.digestable)
 		if(1)
 			dat += "<a href='?src=\ref[src];toggledg=1'>Toggle Digestable</a>"
 		if(0)
-			dat += "<a href='?src=\ref[src];toggledg=1'><span style='color:green;'>Toggle Digestable</span></a>"
-
-	//Returns the dat html to the vore_look
+			dat += "<a href='?src=\ref[src];toggledg=1'><span style='color:green;'>Toggle Digestable</span></a>"	//Returns the dat html to the vore_look
 	return dat
 
 /datum/vore_look/proc/vui_interact(href, href_list)
@@ -206,9 +207,9 @@
 						M.loc << "<font color='green'>Your body efficiently shoves [M] back where they belong.</font>"
 
 				if("Devour") //Eat the inside mob
-				//	if(user.absorbed || user.stat)
-				//		user << "<span class='warning'>You can't do that in your state!</span>"
-				//		return 1
+			//		if(user.absorbed || user.stat)
+			//			user << "<span class='warning'>You can't do that in your state!</span>"
+			//			return 1
 
 					if(!user.vore_selected)
 						user << "<span class='warning'>Pick a belly on yourself first!</span>"
@@ -469,7 +470,7 @@
 			log_game("Could not save vore prefs on USER: [user].")
 
 	if(href_list["toggledg"])
-		var/choice = alert(user, "This button is for those who don't like being digested. It can make you undigestable. Don't abuse this button by toggling it back and forth to extend a scene or whatever, or you'll make the admins cry. Digesting you is currently: [user.digestable ? "Allowed" : "Prevented"]", "", "Allow Digestion", "Cancel", "Prevent Digestion")
+		var/choice = alert(user, "This button is for those who don't like being digested. It can make you undigestable. Digesting you is currently: [user.digestable ? "Allowed" : "Prevented"]", "", "Allow Digestion", "Cancel", "Prevent Digestion")
 		switch(choice)
 			if("Cancel")
 				return 1
@@ -477,6 +478,9 @@
 				user.digestable = 1
 			if("Prevent Digestion")
 				user.digestable = 0
+
+		if(user.client.prefs)
+			user.client.prefs.digestable = user.digestable
 
 	//	message_admins("[key_name(user)] toggled their digestability to [user.digestable] ([user ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[user.loc.];Y=[user.loc.y];Z=[user.loc.z]'>JMP</a>" : "null"])")
 

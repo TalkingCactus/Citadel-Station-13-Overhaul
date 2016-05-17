@@ -366,6 +366,10 @@
 		if(!H.dna.features["ears"] || H.dna.features["ears"] == "None" || H.head && (H.head.flags_inv & HIDEHAIR) || (H.wear_mask && (H.wear_mask.flags_inv & HIDEHAIR)))
 			bodyparts_to_add -= "ears"
 
+	if("tuar" in mutant_bodyparts)
+		if(H.wear_suit && (H.wear_suit.flags_inv & HIDEJUMPSUIT))
+			bodyparts_to_add -= "taur"
+
 	if(!bodyparts_to_add)
 		return
 
@@ -399,7 +403,12 @@
 					S = ears_list[H.dna.features["ears"]]
 				if("body_markings")
 					S = body_markings_list[H.dna.features["body_markings"]]
-
+				if("canine_species")
+					S = canine_species_list[H.dna.features["canine_species"]]
+				if("feline_species")
+					S = feline_species_list[H.dna.features["feline_species"]]
+				if("avian_species")
+					S = avian_species_list[H.dna.features["avian_species"]]
 			if(!S || S.icon_state == "none")
 				continue
 
@@ -408,6 +417,8 @@
 				bodypart = "tail"
 			else if(bodypart == "waggingtail_lizard" || bodypart == "waggingtail_human")
 				bodypart = "waggingtail"
+			else if(bodypart == "taur")
+				bodypart = "taur"
 
 
 			var/icon_string
@@ -417,7 +428,10 @@
 			else
 				icon_string = "m_[bodypart]_[S.icon_state]_[layer]"
 
-			I = image("icon" = 'icons/mob/mutant_bodyparts.dmi', "icon_state" = icon_string, "layer" =- layer)
+			I = image("icon" = S.icon, "icon_state" = icon_string, "layer" =- layer)
+
+			if(S.center)
+				I = center_image(I,S.dimension_x,S.dimension_y)
 
 			if(!(H.disabilities & HUSK))
 				if(!forced_colour)
@@ -433,8 +447,14 @@
 							I.color = "#[H.facial_hair_color]"
 						if(EYECOLOR)
 							I.color = "#[H.eye_color]"
+						if(special_color)
+							standing += generate_colour_icon('icons/mob/special/furryrace.dmi',"[H.base_icon_state]_s",H.dna.special_color,add_layer=-BODY_LAYER,overlay_only=1)
+
 				else
 					I.color = forced_colour
+
+			if(S.special_color)
+				if
 			standing += I
 
 			if(S.hasinner)
@@ -443,7 +463,10 @@
 				else
 					icon_string = "m_[bodypart]inner_[S.icon_state]_[layer]"
 
-				I = image("icon" = 'icons/mob/mutant_bodyparts.dmi', "icon_state" = icon_string, "layer" =- layer)
+				I = image("icon" = S.icon, "icon_state" = icon_string, "layer" =- layer)
+
+				if(S.center)
+					I = center_image(I,S.dimension_x,S.dimension_y)
 
 				standing += I
 

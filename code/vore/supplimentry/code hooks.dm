@@ -105,7 +105,9 @@ In /mob/living/carbon/human/examine
 
 msg += "<EM>[src.name]</EM>! [t_He] [t_is] \a [lowertext(dna.species)]!\n" Right under the name in human/examine
 
-	if(print_flavor_text()) msg += "[print_flavor_text()]\n" just above the ending ------ line
+	if(print_flavor_text()) msg += "[print_flavor_text()]\n"
+
+	just above the ending ------ line
 
 --------------
 code/modules/client/preferences_savefile.dm

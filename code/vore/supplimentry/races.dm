@@ -1,15 +1,18 @@
-/datum/species/fox
-	name = "Fox"
-	id = "fox"
+/datum/species
+	var/limbs_id = null	//this is used if you want to use a different species limb sprites. Mainly used for angels as they look like humans.
+
+
+/datum/species/canine
+	name = "Canine"
+	id = "canine"
 	default_color = "FFFFFF"
 	specflags = list(EYECOLOR,HAIR,LIPS,MUTCOLORS)
-	mutant_bodyparts = list("tail_human", "ears", "wings")
-	default_features = list("mcolor" = "FFF", "tail_human" = "fox", "ears" = "None", "wings" = "None")
+	mutant_bodyparts = list("tail_human", "wings", "canine_species", "taur")
+	default_features = list("mcolor" = "FFF", "tail_human" = "none", "wings" = "None", "canine_species" = "Fox", "taur" = "none", "special_color")
 	skinned_type = /obj/item/stack/sheet/animalhide/human // will have to custom make hides.
-	tail=1 //legacy, tbib
-	taur=1 //legacy
 
-//Add tails/wagging tails to reduce hooks into sprite_accessories.dm and make porting easier
+//Add tails/wagging tails to reduce hooks into sprite_accessories.dm
+// porting easier as this will be for ALL canines
 /datum/sprite_accessory/tails/human/fox
 	name = "Fox"
 	icon_state = "fox"
@@ -21,7 +24,7 @@
 	color_src = MUTCOLORS
 
 
-/datum/species/fox/qualifies_for_rank(rank, list/features)
+/datum/species/canine/qualifies_for_rank(rank, list/features)
 	//These are needed to be 1 because TG is racist af
 	if(rank in security_positions) //This list does not include lawyers.
 		return 1
@@ -36,7 +39,7 @@
 	return ..()
 
 
-/datum/species/fox/handle_chemicals(datum/reagent/chem, mob/living/carbon/human/H) //because slimes I guess
+/datum/species/canine/handle_chemicals(datum/reagent/chem, mob/living/carbon/human/H) //because slimes I guess
 	if(chem.id == "mutationtoxin")
 		H << "<span class='danger'>Your flesh rapidly mutates!</span>"
 		H.set_species(/datum/species/jelly/slime)
@@ -45,12 +48,117 @@
 		return 1
 
 //Curiosity killed the cat's wagging tail.
-/datum/species/fox/spec_death(gibbed, mob/living/carbon/human/H)
+/datum/species/canine/spec_death(gibbed, mob/living/carbon/human/H)
 	if(H)
 		H.endTailWag()
 
 
+/datum/species/canine
+	name = "Feline"
+	id = "feline"
+	default_color = "FFFFFF"
+	specflags = list(EYECOLOR,HAIR,LIPS,MUTCOLORS)
+	mutant_bodyparts = list("tail_human", "ears", "wings", "feline_species")
+	default_features = list("mcolor" = "FFF", "tail_human" = "none", "ears" = "None", "wings" = "None", "feline_species" = "Tajaran")
+	skinned_type = /obj/item/stack/sheet/animalhide/human // will have to custom make hides.
+	tail=1 //legacy, tbib
+	taur=1 //legacy
 
+//Add tails/wagging tails to reduce hooks into sprite_accessories.dm
+// make porting easier this will be for ALL felines
+/datum/sprite_accessory/tails/human/tajaran
+	name = "Tajaran"
+	icon_state = "tajaran"
+	color_src = MUTCOLORS
+
+/datum/sprite_accessory/tails_animated/human/tajaran
+	name = "Tajaran"
+	icon_state = "tajaran"
+	color_src = MUTCOLORS
+
+
+/datum/species/feline/qualifies_for_rank(rank, list/features)
+	//These are needed to be 1 because TG is racist af
+	if(rank in security_positions) //This list does not include lawyers.
+		return 1
+	if(rank in science_positions)
+		return 1
+	if(rank in medical_positions)
+		return 1
+	if(rank in engineering_positions)
+		return 1
+	if(rank == "Quartermaster") //QM is not contained in command_positions but we still want to bar mutants from it.
+		return 1
+	return ..()
+
+
+/datum/species/feline/handle_chemicals(datum/reagent/chem, mob/living/carbon/human/H) //because slimes I guess
+	if(chem.id == "mutationtoxin")
+		H << "<span class='danger'>Your flesh rapidly mutates!</span>"
+		H.set_species(/datum/species/jelly/slime)
+		H.reagents.del_reagent(chem.type)
+		H.faction |= "slime"
+		return 1
+
+//Curiosity killed the cat's wagging tail.
+/datum/species/feline/spec_death(gibbed, mob/living/carbon/human/H)
+	if(H)
+		H.endTailWag()
+
+/datum/species/canine
+	name = "Avian"
+	id = "avian"
+	default_color = "FFFFFF"
+	specflags = list(EYECOLOR,HAIR,LIPS,MUTCOLORS)
+	mutant_bodyparts = list("tail_human", "ears", "wings", "avian_species")
+	default_features = list("mcolor" = "FFF", "tail_human" = "none", "ears" = "None", "wings" = "None", "avian_species" = "bird")
+	skinned_type = /obj/item/stack/sheet/animalhide/human // will have to custom make hides.
+	tail=1 //legacy, tbib
+	taur=1 //legacy
+
+//Add tails/wagging tails to reduce hooks into sprite_accessories.dm
+//Make porting easier as this will be for ALL avians
+/datum/sprite_accessory/tails/human/bird
+	name = "Bird"
+	icon_state = "bird"
+	color_src = MUTCOLORS
+
+/* Not sure they have mobile sprites, but this is for it
+
+/datum/sprite_accessory/tails_animated/human/fox
+	name = "Fox"
+	icon_state = "fox"
+	color_src = MUTCOLORS
+*/
+
+/datum/species/avian/qualifies_for_rank(rank, list/features)
+	//These are needed to be 1 because TG is racist af
+	if(rank in security_positions) //This list does not include lawyers.
+		return 1
+	if(rank in science_positions)
+		return 1
+	if(rank in medical_positions)
+		return 1
+	if(rank in engineering_positions)
+		return 1
+	if(rank == "Quartermaster") //QM is not contained in command_positions but we still want to bar mutants from it.
+		return 1
+	return ..()
+
+
+/datum/species/avian/handle_chemicals(datum/reagent/chem, mob/living/carbon/human/H) //because slimes I guess
+	if(chem.id == "mutationtoxin")
+		H << "<span class='danger'>Your flesh rapidly mutates!</span>"
+		H.set_species(/datum/species/jelly/slime)
+		H.reagents.del_reagent(chem.type)
+		H.faction |= "slime"
+		return 1
+
+//Curiosity killed the cat's wagging tail.
+/datum/species/canine/spec_death(gibbed, mob/living/carbon/human/H)
+	if(H)
+		H.endTailWag()
+/*
 
 
 datum
@@ -191,13 +299,13 @@ datum
 			generic="vulpine"
 			adjective="foxy"
 			tail=1
-/*		fox
+		fox
 			name="fox"
 			id="fox"
 			generic="vulpine"
 			adjective="foxy" // open and shut with this one, huh
 			tail=1
-			taur=18 */
+			taur=1
 		glowfen
 			name="glowfen"
 			id="glowfen"
@@ -652,7 +760,7 @@ proc/kpcode_hastail(var/S)
 
 proc/kpcode_cantaur(var/S)
 	return kpcode_race_taur(S)
-/*
+
 /mob/living/proc/underwear_toggle()
 	set name = "Force Update"
 	set category = "Vore"
@@ -662,4 +770,6 @@ proc/kpcode_cantaur(var/S)
 		//updateappearance(src)
 		src.update_body()
 	else
-		src<<"Humans only."*/
+		src<<"Humans only."
+
+*/

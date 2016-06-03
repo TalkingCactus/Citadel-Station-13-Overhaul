@@ -7,7 +7,7 @@
 
 //Not accessible from usual debug controller verb
 /datum/protected_configuration
-	var/autoadmin = 0
+	var/autoadmin = 1
 	var/autoadmin_rank = "Game Admin"
 
 /datum/configuration
@@ -19,18 +19,19 @@
 	var/lobby_countdown = 120			// In between round countdown.
 	var/round_end_countdown = 25		// Post round murder death kill countdown
 
-	var/log_ooc = 0						// log OOC channel
+	var/log_ooc = 1						// log OOC channel
+	var/log_debug = 1					// log debug output
 	var/log_access = 0					// log login/logout
 	var/log_say = 0						// log client say
-	var/log_admin = 0					// log admin actions
-	var/log_game = 0					// log game events
+	var/log_admin = 1					// log admin actions
+	var/log_game = 1					// log game events
 	var/log_vote = 0					// log voting
 	var/log_whisper = 0					// log client whisper
 	var/log_prayer = 0					// log prayers
 	var/log_law = 0						// log lawchanges
 	var/log_emote = 0					// log emotes
-	var/log_attack = 0					// log attack messages
-	var/log_adminchat = 0				// log admin chat messages
+	var/log_attack = 1					// log attack messages
+	var/log_adminchat = 1				// log admin chat messages
 	var/log_pda = 0						// log pda messages
 	var/log_hrefs = 0					// log all links clicked in-game. Could be used for debugging and tracking down exploits
 	var/log_world_topic = 0				// log all world.Topic() calls
@@ -43,7 +44,6 @@
 	var/vote_no_default = 0				// vote does not default to nochange/norestart (tbi)
 	var/vote_no_dead = 0				// dead people can't vote (tbi)
 	var/del_new_on_log = 1				// del's new players if they log before they spawn in
-	var/allow_Metadata = 0				// Metadata is supported.
 	var/popup_admin_pm = 0				//adminPMs to non-admins show in a pop-up 'reply' window when set to 1.
 	var/fps = 10
 	var/allow_holidays = 0				//toggles whether holiday-specific content should be used
@@ -52,9 +52,9 @@
 	var/respawn = 1
 	var/guest_jobban = 1
 	var/usewhitelist = 0
-	var/kick_inactive = 0				//force disconnect for inactive players
+	var/kick_inactive = 1				//force disconnect for inactive players
 	var/load_jobs_from_txt = 0
-	var/automute_on = 0					//enables automuting/spam prevention
+	var/automute_on = 1					//enables automuting/spam prevention
 	var/minimal_access_threshold = 0	//If the number of players is larger than this threshold, minimal access will be turned on.
 	var/jobs_have_minimal_access = 0	//determines whether jobs use minimal access or expanded access.
 	var/jobs_have_maint_access = 0 		//Who gets maint access?  See defines above.
@@ -113,9 +113,9 @@
 	var/midround_antag_life_check = 0.7 // A ratio of how many people need to be alive in order for the round not to immediately end in midround antagonist
 	var/shuttle_refuel_delay = 12000
 	var/show_game_type_odds = 0			//if set this allows players to see the odds of each roundtype on the get revision screen
-	var/mutant_races = 0				//players can choose their mutant race before joining the game
+	var/mutant_races = 1				//players can choose their mutant race before joining the game
 	var/list/roundstart_races = list()	//races you can play as from the get go. If left undefined the game's roundstart var for species is used
-	var/mutant_humans = 0				//players can pick mutant bodyparts for humans before joining the game
+	var/mutant_humans = 1				//players can pick mutant bodyparts for humans before joining the game
 
 	var/no_summon_guns		//No
 	var/no_summon_magic		//Fun
@@ -282,6 +282,8 @@
 					config.log_pda = 1
 				if("log_hrefs")
 					config.log_hrefs = 1
+				if ("log_debug")
+					config.log_debug = text2num(value)
 				if("log_world_topic")
 					config.log_world_topic = 1
 				if("allow_admin_ooccolor")
@@ -326,8 +328,6 @@
 					guests_allowed = 0
 				if("usewhitelist")
 					config.usewhitelist = 1
-				if("allow_metadata")
-					config.allow_Metadata = 1
 				if("kick_inactive")
 					if(value < 1)
 						value = INACTIVITY_KICK

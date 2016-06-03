@@ -8,7 +8,7 @@ var/list/preferences_datums = list()
 	//doohickeys for savefiles
 	var/path
 	var/default_slot = 1				//Holder so it doesn't default to slot 1, rather the last one used
-	var/max_save_slots = 3
+	var/max_save_slots = 12
 
 	//non-preference stuff
 	var/muted = 0
@@ -59,7 +59,12 @@ var/list/preferences_datums = list()
 	var/skin_tone = "caucasian1"		//Skin color
 	var/eye_color = "000"				//Eye color
 	var/datum/species/pref_species = new /datum/species/human()	//Mutant race
-	var/list/features = list("mcolor" = "FFF", "tail_lizard" = "Smooth", "tail_human" = "None", "snout" = "Round", "horns" = "None", "ears" = "None", "frills" = "None", "spines" = "None", "body_markings" = "None")
+	var/list/features = list("mcolor" = "FFF", "tail_lizard" = "Smooth", "tail_human" = "None",
+		"snout" = "Round", "horns" = "None", "ears" = "None",
+		"wings" = "None", "frills" = "None", "spines" = "None",
+		"body_markings" = "None", "canine_features" = "None",
+		"feline_features" = "None", "avian_features" = "None",
+		"tuar" = "None")
 
 	var/list/custom_names = list("clown", "mime", "ai", "cyborg", "religion", "deity")
 	var/adminmusicvolume = 50
@@ -79,14 +84,22 @@ var/list/preferences_datums = list()
 	var/job_engsec_med = 0
 	var/job_engsec_low = 0
 
+		//vore stuff
+	var/playerscale = RESIZE_NORMAL		//Custom playerscale
+	var/list/belly_prefs = list()
+	var/digestable = 1
+	var/mutant_wing = "none"
+	var/wingcolor = "FFF"
+	var/special_color[COLOUR_LIST_SIZE]
+	var/be_taur=0
+
 		// Want randomjob if preferences already filled - Donkie
 	var/userandomjob = 1 //defaults to 1 for fewer assistants
 
 	// 0 = character settings, 1 = game preferences
 	var/current_tab = 0
 
-		// OOC Metadata:
-	var/metadata = ""
+	var/flavor_text = ""
 
 	var/unlock_content = 0
 
@@ -103,11 +116,13 @@ var/list/preferences_datums = list()
 			load_path(C.ckey)
 			unlock_content = C.IsByondMember()
 			if(unlock_content)
-				max_save_slots = 8
+				max_save_slots = 16
 	var/loaded_preferences_successfully = load_preferences()
 	if(loaded_preferences_successfully)
 		if(load_character())
-			return
+			if(load_vore_preferences())
+				return
+
 	//we couldn't load character data so just randomize the character appearance + name
 	random_character()		//let's create a random character then - rather than a fat, bald and naked man.
 	real_name = pref_species.random_name(gender,1)
@@ -173,7 +188,15 @@ var/list/preferences_datums = list()
 			dat += "<a href ='?_src_=prefs;preference=religion_name;task=input'><b>Chaplain religion:</b> [custom_names["religion"]] </a>"
 			dat += "<a href ='?_src_=prefs;preference=deity_name;task=input'><b>Chaplain deity:</b> [custom_names["deity"]]</a><BR></td>"
 
-
+			dat += "<a href='byond://?src=\ref[user];preference=flavor_text;task=input'><b>Set Flavor Text</b></a><br>"
+			if(lentext(flavor_text) <= 40)
+				if(!lentext(flavor_text))
+					dat += "\[...\]"
+				else
+					dat += "[flavor_text]"
+			else
+				dat += "[TextPreview(flavor_text)]...<br>"
+ 			dat += "<br>"
 			dat += "<td valign='center'>"
 
 			dat += "<div class='statusDisplay'><center><img src=previewicon.png width=[preview_icon.Width()] height=[preview_icon.Height()]></center></div>"
@@ -188,8 +211,33 @@ var/list/preferences_datums = list()
 
 			if(config.mutant_races)
 				dat += "<b>Species:</b><BR><a href='?_src_=prefs;preference=species;task=input'>[pref_species.name]</a><BR>"
+			if(config.mutant_races)
+				dat += "<b>Species:</b><BR><a href='?_src_=prefs;preference=species;task=input'>[pref_species.id]</a><BR>"
+				dat += "<b>Taur:</b><a href='?_src_=prefs;preference=be_taur;task=input'>[be_taur ? "Yes" : "No"]</a>"
+				if(!kpcode_cantaur(pref_species.id))
+					dat += " (not available for [pref_species.id])"
+				dat += "<BR>"
+				if(special_color[1])
+					dat += "<span style='border:1px solid #161616; background-color: #[special_color[1]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=special_color;which=1;task=input'>Primary</a><BR>"
+				else
+					dat += "<a href='?_src_=prefs;preference=special_color;which=1;task=input'>Primary?</a><BR>"
+				if(special_color[2])
+					dat += "<span style='border:1px solid #161616; background-color: #[special_color[2]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=special_color;which=2;task=input'>Secondary</a><BR>"
+				else
+					dat += "<a href='?_src_=prefs;preference=special_color;which=2;task=input'>Secondary?</a><BR>"
+				if(special_color[3])
+					dat += "<span style='border:1px solid #161616; background-color: #[special_color[3]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=special_color;which=3;task=input'>Tertiary</a><BR>"
+				else
+					dat += "<a href='?_src_=prefs;preference=special_color;which=3;task=input'>Tertiary?</a><BR>"
 			else
 				dat += "<b>Species:</b> Human<BR>"
+
+			dat += "<b>Size:</b> <a href='?_src_=prefs;preference=character_size;task=input'>[playerscale]</a><BR>"
+
+			dat += "<h3>Wings</h3>"
+			dat += "<a href='?_src_=prefs;preference=mutant_wing;task=input'>[mutant_wing]</a><BR>"
+			dat += "<span style='border: 1px solid #161616; background-color: #[wingcolor];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=wingcolor;task=input'>Change</a><BR>"
+
 
 			dat += "<b>Blood Type:</b> [blood_type]<BR>"
 			dat += "<b>Underwear:</b><BR><a href ='?_src_=prefs;preference=underwear;task=input'>[underwear]</a><BR>"
@@ -240,7 +288,7 @@ var/list/preferences_datums = list()
 
 			if(config.mutant_races) //We don't allow mutant bodyparts for humans either unless this is true.
 
-				if((MUTCOLORS in pref_species.specflags) || (MUTCOLORS_PARTSONLY in pref_species.specflags))
+			/*	if((MUTCOLORS in pref_species.specflags) || (MUTCOLORS_PARTSONLY in pref_species.specflags))
 
 					dat += "<td valign='top' width='21%'>"
 
@@ -248,7 +296,7 @@ var/list/preferences_datums = list()
 
 					dat += "<span style='border: 1px solid #161616; background-color: #[features["mcolor"]];'>&nbsp;&nbsp;&nbsp;</span> <a href='?_src_=prefs;preference=mutant_color;task=input'>Change</a><BR>"
 
-					dat += "</td>"
+					dat += "</td>" */
 
 				if("tail_lizard" in pref_species.mutant_bodyparts)
 					dat += "<td valign='top' width='7%'>"
@@ -304,6 +352,42 @@ var/list/preferences_datums = list()
 
 					dat += "</td>"
 
+				if("avian_features" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Bird</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["ears"]]</a><BR>"
+
+					dat += "</td>"
+
+				if("feline_features" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Feline</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["feline_features"]]</a><BR>"
+
+					dat += "</td>"
+
+				if("canine_features" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Canine</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["canine_features"]]</a><BR>"
+
+					dat += "</td>"
+
+				if("taur" in pref_species.mutant_bodyparts)
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Taur</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["taur"]]</a><BR>"
+
+					dat += "</td>"
+
 			if(config.mutant_humans)
 
 				if("tail_human" in pref_species.mutant_bodyparts)
@@ -321,6 +405,16 @@ var/list/preferences_datums = list()
 					dat += "<h3>Ears</h3>"
 
 					dat += "<a href='?_src_=prefs;preference=ears;task=input'>[features["ears"]]</a><BR>"
+
+					dat += "</td>"
+
+
+				if("wings" in pref_species.mutant_bodyparts)	//TODO: make specific body parts be toggleable via config or something.
+					dat += "<td valign='top' width='7%'>"
+
+					dat += "<h3>Wings</h3>"
+
+					dat += "<a href='?_src_=prefs;preference=wings;task=input'>[features["wings"]]</a><BR>"
 
 					dat += "</td>"
 
@@ -343,8 +437,6 @@ var/list/preferences_datums = list()
 			dat += "<b>Ghost pda:</b> <a href='?_src=prefs;preference=ghost_pda'>[(chat_toggles & CHAT_GHOSTPDA) ? "All Messages" : "Nearest Creatures"]</a><br>"
 			dat += "<b>Pull requests:</b> <a href='?_src_=prefs;preference=pull_requests'>[(chat_toggles & CHAT_PULLR) ? "Yes" : "No"]</a><br>"
 			dat += "<b>Midround Antagonist:</b> <a href='?_src_=prefs;preference=allow_midround_antag'>[(toggles & MIDROUND_ANTAG) ? "Yes" : "No"]</a><br>"
-			if(config.allow_Metadata)
-				dat += "<b>OOC Notes:</b> <a href='?_src_=prefs;preference=metadata;task=input'>Edit </a><br>"
 
 			if(user.client)
 				if(user.client.holder)
@@ -807,10 +899,14 @@ var/list/preferences_datums = list()
 					if(new_age)
 						age = max(min( round(text2num(new_age)), AGE_MAX),AGE_MIN)
 
-				if("metadata")
-					var/new_metadata = input(user, "Enter any information you'd like others to see, such as Roleplay-preferences:", "Game Preference" , metadata)  as message|null
-					if(new_metadata)
-						metadata = sanitize(copytext(new_metadata,1,MAX_MESSAGE_LEN))
+				if("flavor_text")
+					var/msg = input(usr,"Set the flavor text in your 'examine' verb. This can also be used for OOC notes and preferences!","Flavor Text",html_decode(flavor_text)) as message
+
+					if(msg != null)
+						msg = copytext(msg, 1, MAX_MESSAGE_LEN)
+						msg = html_encode(msg)
+
+						flavor_text = msg
 
 				if("hair")
 					var/new_hair = input(user, "Choose your character's hair colour:", "Character Preference") as null|color
@@ -916,6 +1012,21 @@ var/list/preferences_datums = list()
 						else
 							user << "<span class='danger'>Invalid color. Your color is not bright enough.</span>"
 
+				if("special_color")
+					var/index_tc=href_list["which"]
+					switch(alert("Use a special colour for #[index_tc]?","Character Preference","Yes","No","Cancel"))
+						if("Yes")
+							var/new_color = input(user, "Choose colour #[index_tc]:", "Character Preference") as null|color
+							if(new_color)
+								special_color[text2num(index_tc)] = sanitize_hexcolor(new_color)
+						if("No")
+							special_color[text2num(index_tc)]=null
+
+				if("character_size")
+					var/new_size = input(user, "Choose your character's size:", "Character Preference")  in list("huge", "large", "normal", "small", "tiny")
+					if(new_size)
+						playerscale=new_size
+
 				if("tail_lizard")
 					var/new_tail
 					new_tail = input(user, "Choose your character's tail:", "Character Preference") as null|anything in tails_list_lizard
@@ -945,6 +1056,40 @@ var/list/preferences_datums = list()
 					new_ears = input(user, "Choose your character's ears:", "Character Preference") as null|anything in ears_list
 					if(new_ears)
 						features["ears"] = new_ears
+
+				if("canine_species")
+					var/new_canine_species
+					new_canine_species = input(user, "Choose your Canine species:", "Character Preference") as null|anything in canine_species_list
+					if(new_canine_species)
+						features["canine_species"] = new_canine_species
+
+				if("feline_species")
+					var/new_feline_species
+					new_feline_species = input(user, "Choose your Feline species:", "Character Preference") as null|anything in feline_species_list
+					if(new_feline_species)
+						features["feline_species"] = new_feline_species
+
+				if("avian_species")
+					var/new_avian_species
+					new_avian_species = input(user, "Choose your Avian species:", "Character Preference") as null|anything in avian_species_list
+					if(new_avian_species)
+						features["avian_species"] = new_avian_species
+
+				if("taur")
+					var/new_taur
+					new_taur = input(user, "Choose your character's tauric half:", "Character Preference") as null|anything in taur_list
+					if(new_taur)
+						features["taur"] = new_taur
+
+				if("mutant_wing")
+					var/new_mutant_wing = input(user, "Choose your character's wings:", "Character Preference")  as null|anything in mutant_wings
+					if(new_mutant_wing)
+						mutant_wing = new_mutant_wing
+
+				if("wingcolor")
+					var/new_wingcolor = input(user, "Choose your character's wing colour:", "Character Preference") as color|null
+					if(new_wingcolor)
+						wingcolor = sanitize_hexcolor(new_wingcolor)
 
 				if("frills")
 					var/new_frills
@@ -1126,12 +1271,15 @@ var/list/preferences_datums = list()
 				if("save")
 					save_preferences()
 					save_character()
+					save_vore_preferences()
 
 				if("load")
 					load_preferences()
 					load_character()
+					load_vore_preferences()
 
 				if("changeslot")
+					load_vore_preferences(text2num(href_list["num"]))
 					if(!load_character(text2num(href_list["num"])))
 						random_character()
 						real_name = random_unique_name(gender)
@@ -1164,6 +1312,32 @@ var/list/preferences_datums = list()
 
 	character.gender = gender
 	character.age = age
+
+	character.flavor_text = flavor_text
+
+	if(!length(belly_prefs))
+		var/datum/belly/B = new /datum/belly(src)
+		B.immutable = 1
+		B.name = "Stomach"
+		B.inside_flavor = "It appears to be rather warm and wet. Makes sense, considering it's inside \the [character]."
+		belly_prefs[B.name] = B
+
+	character.vore_organs = belly_prefs
+
+	character.vore_selected = character.vore_organs[1]
+
+	for(var/I in character.vore_organs)
+		var/datum/belly/B = character.vore_organs[I]
+		B.owner = character
+
+	character.digestable = digestable
+
+	if(mutant_wing != "none" && config.mutant_races)
+		character.dna.mutantwing = mutant_wing
+		character.dna.wingcolor=wingcolor
+	if(be_taur)
+		character.dna.taur=1
+	character.dna.special_color = special_color
 
 	character.eye_color = eye_color
 	character.hair_color = hair_color

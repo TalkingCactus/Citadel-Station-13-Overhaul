@@ -48,6 +48,8 @@
 	if(istype(loc, /obj/machinery/atmospherics/components/unary/cryo_cell))
 		return
 
+	if(ismob(loc))	return
+
 	var/datum/gas_mixture/environment
 	if(loc)
 		environment = loc.return_air()

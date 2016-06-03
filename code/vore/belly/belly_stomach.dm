@@ -15,18 +15,27 @@
 
 // @Override
 /datum/belly/stomach/toggle_digestion()
-	digest_mode = (digest_mode == DM_DIGEST) ? DM_HOLD : DM_DIGEST
-	owner << "<span class='notice'>You will [digest_mode == DM_DIGEST ? "now" : "no longer"] digest people in your stomach.</span>"
+	digest_mode = input("Stomach Mode") in list("Hold", "Digest", "Absorb")
+	switch (digest_mode)
+		if("Digest")
+			owner << "<span class='notice'>You will now digest people.</span>"
+		if("Hold")
+			owner << "<span class='notice'>You will now harmlessly hold people.</span>"
+		if("Absorb")
+			owner << "<span class='notice'>You will now absorb people and make them part of you..</span>"
 
 // @Override
 /datum/belly/stomach/process_Life()
+	if(length(internal_contents) && air_master.current_cycle%3==1 && digest_mode == DM_DIGEST)
+		var/churnsound = pick(digestion_sounds)
+		for(var/mob/hearer in range(1,owner))
+			hearer << sound(churnsound,volume=80)
+
 	for (var/mob/living/M in internal_contents)
 		if(istype(M, /mob/living/carbon/human))
 			var/mob/living/carbon/human/R = M
 			if (!R.digestable)
 				continue
-		if(oxygen)
-			M.setOxyLoss(0, 0)
 
 		if (owner.stat != DEAD && digest_mode == DM_DIGEST) //According to vore.dm, stendo being true means people should digest. // also: For some reason this can't be checked in the if statement below.
 			if (iscarbon(M) || isanimal(M)) // If human or simple mob and you're set to digest.
@@ -81,132 +90,71 @@
 							owner << "<span class='notice'>You feel a rush of warmth as [M]'s now-liquified remains start pumping through your intestines.</span>"
 							M << "<span class='notice'>Your now-liquified remains start pumping through [owner]'s intestines, filling their body with a rush of warmth.</span>"
 					owner.nutrition += 20 // so eating dead mobs gives you *something*.
-					switch(rand(1,10))
-						if (1)
-							owner << sound('sound/vore/death1.ogg')
-							M << sound('sound/vore/death1.ogg')
-						if (2)
-							owner << sound('sound/vore/death2.ogg')
-							M << sound('sound/vore/death2.ogg')
-						if (3)
-							owner << sound('sound/vore/death3.ogg')
-							M << sound('sound/vore/death3.ogg')
-						if (4)
-							owner << sound('sound/vore/death4.ogg')
-							M << sound('sound/vore/death4.ogg')
-						if (5)
-							owner << sound('sound/vore/death5.ogg')
-							M << sound('sound/vore/death5.ogg')
-						if (6)
-							owner << sound('sound/vore/death6.ogg')
-							M << sound('sound/vore/death6.ogg')
-						if (7)
-							owner << sound('sound/vore/death7.ogg')
-							M << sound('sound/vore/death7.ogg')
-						if (8)
-							owner << sound('sound/vore/death8.ogg')
-							M << sound('sound/vore/death8.ogg')
-						if (9)
-							owner << sound('sound/vore/death9.ogg')
-							M << sound('sound/vore/death9.ogg')
-						if (10)
-							owner << sound('sound/vore/death10.ogg')
-							M << sound('sound/vore/death10.ogg')
+					var/deathsound = pick(death_sounds)
+					for(var/mob/hearer in range(1,owner))
+						hearer << deathsound
 					digestion_death(M)
 					continue
 
 				// Deal digestion damage (and feed the pred)
-				if(SSair.times_fired%3==1)
+				if(air_master.current_cycle%3==1)
 					if(!(M.status_flags & GODMODE))
-						switch(rand(1,12))
-							if (1)
-								owner << sound('sound/vore/digest1.ogg')
-								M << sound('sound/vore/digest1.ogg')
-							if (2)
-								owner << sound('sound/vore/digest2.ogg')
-								M << sound('sound/vore/digest2.ogg')
-							if (3)
-								owner << sound('sound/vore/digest3.ogg')
-								M << sound('sound/vore/digest3.ogg')
-							if (4)
-								owner << sound('sound/vore/digest4.ogg')
-								M << sound('sound/vore/digest4.ogg')
-							if (5)
-								owner << sound('sound/vore/digest5.ogg')
-								M << sound('sound/vore/digest5.ogg')
-							if (6)
-								owner << sound('sound/vore/digest6.ogg')
-								M << sound('sound/vore/digest6.ogg')
-							if (7)
-								owner << sound('sound/vore/digest7.ogg')
-								M << sound('sound/vore/digest7.ogg')
-							if (8)
-								owner << sound('sound/vore/digest8.ogg')
-								M << sound('sound/vore/digest8.ogg')
-							if (9)
-								owner << sound('sound/vore/digest9.ogg')
-								M << sound('sound/vore/digest9.ogg')
-							if (10)
-								owner << sound('sound/vore/digest10.ogg')
-								M << sound('sound/vore/digest10.ogg')
-							if (11)
-								owner << sound('sound/vore/digest11.ogg')
-								M << sound('sound/vore/digest11.ogg')
-							if (12)
-								owner << sound('sound/vore/digest12.ogg')
-								M << sound('sound/vore/digest12.ogg')
-					//	M.adjustBruteLoss(2)
-						M.adjustFireLoss(2)
-						var/difference = owner.playerscale / M.playerscale
-						owner.nutrition += 10/difference
+						M.adjustBruteLoss(1)
+						M.adjustFireLoss(1)
+						owner.nutrition += 10
+
 
 
 // @Override
 /datum/belly/stomach/relay_struggle(var/mob/user, var/direction)
-	if (!(user in internal_contents))
-		return  // User is not in this belly!
+	if (!(user in internal_contents) || recent_struggle)
+		return  // User is not in this belly, or struggle too soon.
 
-	if(prob(80))
-		var/struggle_outer_message
-		var/struggle_user_message
-		var/stomach_noun = pick("stomach","gut","tummy","belly") // To randomize the word for 'stomach'
+	recent_struggle = 1
+	spawn(25)
+		recent_struggle = 0
 
-		switch(rand(1,8)) // Increase this number per emote.
-			if(1)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] wobbles with a squirming meal.</span>"
-				struggle_user_message = "<span class='alert'>You squirm inside of [owner]'s [stomach_noun], making it wobble around.</span>"
-			if(2)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] jostles with movement.</span>"
-				struggle_user_message = "<span class='alert'>You jostle [owner]'s [stomach_noun] with movement.</span>"
-			if(3)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] briefly swells outward as someone pushes from inside.</span>"
-				struggle_user_message = "<span class='alert'>You shove against the walls of [owner]'s [stomach_noun], making it briefly swell outward.</span>"
-			if(4)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] fidgets with a trapped victim.</span>"
-				struggle_user_message = "<span class='alert'>You fidget around inside of [owner]'s [stomach_noun].</span>"
-			if(5)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] jiggles with motion from inside.</span>"
-				struggle_user_message = "<span class='alert'>Your motion causes [owner]'s [stomach_noun] to jiggle.</span>"
-			if(6)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] sloshes around.</span>"
-				struggle_user_message = "<span class='alert'>Your movement only causes [owner]'s [stomach_noun] to slosh around you.</span>"
-			if(7)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] gushes softly.</span>"
-				struggle_user_message = "<span class='alert'>Your struggles only cause [owner]'s [stomach_noun] to gush softly around you.</span>"
-			if(8)
-				struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] lets out a wet squelch.</span>"
-				struggle_user_message = "<span class='alert'>Your useless squirming only causes [owner]'s slimy [stomach_noun] to squelch over your body.</span>"
+	//if(prob(80)) //Using the cooldown above to prevent spam instead
+	var/struggle_outer_message
+	var/struggle_user_message
+	var/stomach_noun = pick("stomach","gut","tummy","belly") // To randomize the word for 'stomach'
 
-		for(var/mob/M in hearers(4, owner))
-			M.show_message(struggle_outer_message, 2) // hearable
-		user << struggle_user_message
+	switch(rand(1,8)) // Increase this number per emote.
+		if(1)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] wobbles with a squirming meal.</span>"
+			struggle_user_message = "<span class='alert'>You squirm inside of [owner]'s [stomach_noun], making it wobble around.</span>"
+		if(2)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] jostles with movement.</span>"
+			struggle_user_message = "<span class='alert'>You jostle [owner]'s [stomach_noun] with movement.</span>"
+		if(3)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] briefly swells outward as someone pushes from inside.</span>"
+			struggle_user_message = "<span class='alert'>You shove against the walls of [owner]'s [stomach_noun], making it briefly swell outward.</span>"
+		if(4)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] fidgets with a trapped victim.</span>"
+			struggle_user_message = "<span class='alert'>You fidget around inside of [owner]'s [stomach_noun].</span>"
+		if(5)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] jiggles with motion from inside.</span>"
+			struggle_user_message = "<span class='alert'>Your motion causes [owner]'s [stomach_noun] to jiggle.</span>"
+		if(6)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] sloshes around.</span>"
+			struggle_user_message = "<span class='alert'>Your movement only causes [owner]'s [stomach_noun] to slosh around you.</span>"
+		if(7)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] gushes softly.</span>"
+			struggle_user_message = "<span class='alert'>Your struggles only cause [owner]'s [stomach_noun] to gush softly around you.</span>"
+		if(8)
+			struggle_outer_message = "<span class='alert'>[owner]'s [stomach_noun] lets out a wet squelch.</span>"
+			struggle_user_message = "<span class='alert'>Your useless squirming only causes [owner]'s slimy [stomach_noun] to squelch over your body.</span>"
 
-		switch(rand(1,4))
-			if(1)
-				playsound(user.loc, 'sound/vore/squish1.ogg', 50, 1)
-			if(2)
-				playsound(user.loc, 'sound/vore/squish2.ogg', 50, 1)
-			if(3)
-				playsound(user.loc, 'sound/vore/squish3.ogg', 50, 1)
-			if(4)
-				playsound(user.loc, 'sound/vore/squish4.ogg', 50, 1)
+	for(var/mob/M in hearers(4, owner))
+		M.show_message(struggle_outer_message, 2) // hearable
+	user << struggle_user_message
+
+	switch(rand(1,4))
+		if(1)
+			playsound(user.loc, 'sound/vore/squish1.ogg', 50, 1)
+		if(2)
+			playsound(user.loc, 'sound/vore/squish2.ogg', 50, 1)
+		if(3)
+			playsound(user.loc, 'sound/vore/squish3.ogg', 50, 1)
+		if(4)
+			playsound(user.loc, 'sound/vore/squish4.ogg', 50, 1)

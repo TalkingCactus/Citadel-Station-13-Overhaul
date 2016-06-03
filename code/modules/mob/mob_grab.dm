@@ -122,12 +122,13 @@
 		return
 	if(state == GRAB_UPGRADING)
 		return
+	if(assailant.next_move > world.time)
+		return
 	if(world.time < (last_upgrade + UPGRADE_COOLDOWN))
 		return
 	if(!assailant.canmove || assailant.lying)
-		qdel(src)
+		del(src)
 		return
-
 	last_upgrade = world.time
 
 	if(state < GRAB_AGGRESSIVE)
@@ -192,7 +193,7 @@
 	return 1
 
 
-/obj/item/weapon/grab/attack(mob/M, mob/user)
+/obj/item/weapon/grab/attack(mob/M, mob/living/user)
 	if(!affecting)
 		return
 
@@ -214,6 +215,55 @@
 			qdel(src)
 
 	add_logs(user, affecting, "attempted to put", src, "into [M]")
+
+	//Vore code swallowing emotes, modifying existing alien vore stuff.
+	if(state >= GRAB_AGGRESSIVE)
+		if( (ishuman(user) && !issilicon(affecting)) || (isalien(user) && !issilicon(affecting)) )
+
+			// Alright, let's see if we can get this to work for feeding others as well as yourself - NW
+			// Refactored to use centralized vore code system - Leshana
+
+			var/mob/living/attacker = user  // Typecast to human
+
+			// If you click yourself...
+			if(M == assailant)
+				if (is_vore_predator(user))
+					if(istype(user, /mob/living/simple_animal))
+						if(!do_mob(user, affecting, 50)) return
+					else if(istype(user, /mob/living/carbon/human))
+						if(!do_mob(user, affecting, 100)) return
+					// Feed what you're holding (affecting) to yourself (user)
+					if (user.feed_grabbed_to_self(user, affecting)) del(src)
+				else
+					user.visible_message("<span class='notice'>You can't eat this.</span>")
+					log_attack("[attacker] attempted to feed [affecting] to [user] ([user.type]) but it is not predator-capable")
+
+			// If you click your target...
+			if(M == affecting)
+				if (is_vore_predator(affecting))
+					if(istype(user, /mob/living/simple_animal))
+						if(!do_mob(user, affecting, 50)) return
+					else if(istype(user, /mob/living/carbon/human))
+						if(!do_mob(user, affecting, 100)) return
+					// Feed yourself (user) to what you're holding (affecting)!
+					if (user.feed_self_to_grabbed(user, affecting)) del(src)
+				else
+					user.visible_message("<span class='notice'>[affecting] can't eat that</span>")
+					log_attack("[attacker] attempted to feed [user] to [affecting] ([affecting.type]) but it is not predator-capable")
+
+			// If you click someone else...
+			else
+				// Feed what you're holding (affecting) to what you clicked (M)
+				if (is_vore_predator(M))
+					if(istype(user, /mob/living/simple_animal))
+						if(!do_mob(user, affecting, 50)) return
+					else if(istype(user, /mob/living/carbon/human))
+						if(!do_mob(user, affecting, 100)) return
+					if (user.feed_grabbed_to_other(user, affecting, M)) del(src)
+				else
+					user.visible_message("<span class='notice'>[M] can't eat that.</span>")
+					log_attack("[attacker] attempted to feed [affecting] to [M] ([M.type]) but it is not predator-capable")
+	//End vore code.
 
 /obj/item/weapon/grab/dropped()
 	..()

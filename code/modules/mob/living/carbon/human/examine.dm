@@ -223,14 +223,28 @@
 	if(fire_stacks < 0)
 		msg += "[t_He] looks a little soaked.\n"
 
+	// For each belly type, print description if someone is inside!
+	for (var/I in src.vore_organs)
+		var/datum/belly/B = vore_organs[I]
+		msg += B.get_examine_msg()
 
-	if(nutrition < NUTRITION_LEVEL_STARVING - 50)
-		msg += "[t_He] [t_is] severely malnourished.\n"
-	else if(nutrition >= NUTRITION_LEVEL_FAT)
-		if(user.nutrition < NUTRITION_LEVEL_STARVING - 50)
-			msg += "[t_He] [t_is] plump and delicious looking - Like a fat little piggy. A tasty piggy.\n"
-		else
-			msg += "[t_He] [t_is] quite chubby.\n"
+	// Vorestation code.
+	//
+	if(nutrition < 50)
+		msg += "\red [t_He] [t_is] starving! You can hear [t_his] stomach snarling from across the room!\n"
+	else if(nutrition >= 50 && nutrition < 100)
+		msg += "\red [t_He] [t_is] extremely hungry. A deep growl occasionally rumbles from [t_his] empty stomach.\n"
+	else if(nutrition >= 500 && nutrition < 865) // Fat.
+		msg += "[t_He] has a stuffed belly, bloated fat and round from eating too much.\n"
+	else if(nutrition >= 1200 && nutrition < 1935) // One person fully digested.
+		msg += "\red [t_He] [t_is] sporting a large, round, sagging stomach. It's contains at least their body weight worth of glorping slush.\n"
+	else if(nutrition >= 1935 && nutrition < 3005) // Two people.
+		msg += "\red [t_He] [t_is] engorged with a huge stomach that sags and wobbles as they move. They must have consumed at least twice their body weight. It looks incredibly soft.\n"
+	else if(nutrition >= 3005 && nutrition < 4075) // Three people.
+		msg += "\red [t_He] stomach is firmly packed with digesting slop. They must have eaten at least a few times worth their body weight! It looks hard for them to stand, and [t_his] gut jiggles when they move.\n"
+	else if(nutrition >= 4075) // Four or more people.
+		msg += "\red [t_He] [t_is] so absolutely stuffed that you aren't sure how it's possible to move. [t_He] can't seem to swell any bigger. The surface of [t_his] belly looks sorely strained!\n"
+
 
 	if(pale)
 		msg += "[t_He] [t_has] pale skin.\n"

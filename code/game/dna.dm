@@ -127,6 +127,31 @@
 		if(DNA_HAIR_STYLE_BLOCK)
 			setblock(uni_identity, blocknumber, construct_block(hair_styles_list.Find(H.hair_style), hair_styles_list.len))
 
+		var/colour_switch=0
+		if(special_color[1])
+			L[DNA_COLOR_ONE_BLOCK] = sanitize_hexcolor(special_color[1])
+			colour_switch+=1
+		else
+			L[DNA_COLOR_ONE_BLOCK] = random_string(DNA_BLOCK_SIZE,hex_characters)
+		if(special_color[2])
+			L[DNA_COLOR_TWO_BLOCK] = sanitize_hexcolor(special_color[2])
+			colour_switch+=2
+		else
+			L[DNA_COLOR_TWO_BLOCK] = random_string(DNA_BLOCK_SIZE,hex_characters)
+		if(special_color[3])
+			L[DNA_COLOR_THR_BLOCK] = sanitize_hexcolor(special_color[3])
+			colour_switch+=4
+		else
+			L[DNA_COLOR_THR_BLOCK] = random_string(DNA_BLOCK_SIZE,hex_characters)
+		L[DNA_COLOR_SWITCH_BLOCK] = construct_block(colour_switch+1,DNA_COLOR_SWITCH_MAX+1)
+
+		if(mutant_wings.Find(mutantwing))
+			L[DNA_MUTANTWING_BLOCK] = construct_block(mutant_wings.Find(mutantwing), mutant_wings.len+1)
+		else
+			L[DNA_MUTANTWING_BLOCK] = construct_block(mutant_wings.len+1, mutant_wings.len+1)
+		L[DNA_WINGCOLOR_BLOCK] = sanitize_hexcolor(wingcolor)
+		L[DNA_TAUR_BLOCK] = construct_block(taur+1, 2)
+
 /datum/dna/proc/mutations_say_mods(message)
 	if(message)
 		for(var/datum/mutation/human/M in mutations)
@@ -184,6 +209,7 @@
 		update_body()
 		update_hair()
 		update_mutcolor()
+		update_special_color()
 		update_mutations_overlay()// no lizard with human hulk overlay please.
 
 
@@ -221,6 +247,7 @@
 		update_body()
 		update_hair()
 		update_mutcolor()
+		update_special_color
 		update_mutations_overlay()
 
 
@@ -231,12 +258,12 @@
 		dna.species = new rando_race()
 
 //proc used to update the mob's appearance after its dna UI has been changed
-/mob/living/carbon/proc/updateappearance(icon_update=1, mutcolor_update=0, mutations_overlay_update=0)
+/mob/living/carbon/proc/updateappearance(icon_update=1, mutcolor_update=0, mutations_overlay_update=0, special_color_update=0)
 	if(!has_dna())
 		return
 	gender = (deconstruct_block(getblock(dna.uni_identity, DNA_GENDER_BLOCK), 2)-1) ? FEMALE : MALE
 
-mob/living/carbon/human/updateappearance(icon_update=1, mutcolor_update=0, mutations_overlay_update=0)
+mob/living/carbon/human/updateappearance(icon_update=1, mutcolor_update=0, mutations_overlay_update=0, special_color_update=0)
 	..()
 	var/structure = dna.uni_identity
 	hair_color = sanitize_hexcolor(getblock(structure, DNA_HAIR_COLOR_BLOCK))
@@ -245,11 +272,37 @@ mob/living/carbon/human/updateappearance(icon_update=1, mutcolor_update=0, mutat
 	eye_color = sanitize_hexcolor(getblock(structure, DNA_EYE_COLOR_BLOCK))
 	facial_hair_style = facial_hair_styles_list[deconstruct_block(getblock(structure, DNA_FACIAL_HAIR_STYLE_BLOCK), facial_hair_styles_list.len)]
 	hair_style = hair_styles_list[deconstruct_block(getblock(structure, DNA_HAIR_STYLE_BLOCK), hair_styles_list.len)]
+	var/mutantwing_c = deconstruct_block(getblock(structure, DNA_MUTANTWING_BLOCK), mutant_wings.len+1)
+	if(mutantwing_c<=mutant_wings.len)
+		dna.mutantwing=mutant_wings[mutantwing_c]
+	else
+		dna.mutantwing=null
+
+	dna.wingcolor = sanitize_hexcolor(getblock(structure, DNA_WINGCOLOR_BLOCK))
+	var/colour_switch=deconstruct_block(getblock(structure, DNA_COLOR_SWITCH_BLOCK), DNA_COLOR_SWITCH_MAX+1)
+	colour_switch-=1
+	if(colour_switch&1)
+		dna.special_color[1]=sanitize_hexcolor(getblock(structure, DNA_COLOR_ONE_BLOCK))
+	else
+		dna.special_color[1]=null
+	if(colour_switch&2)
+		dna.special_color[2]=sanitize_hexcolor(getblock(structure, DNA_COLOR_TWO_BLOCK))
+	else
+		dna.special_color[2]=null
+	if(colour_switch&4)
+		dna.special_color[3]=sanitize_hexcolor(getblock(structure, DNA_COLOR_THR_BLOCK))
+	else
+		dna.special_color[3]=null
+
+	dna.taur=deconstruct_block(getblock(structure, DNA_TAUR_BLOCK), 2)-1
+
 	if(icon_update)
 		update_body()
 		update_hair()
 		if(mutcolor_update)
 			update_mutcolor()
+		if(special_color_update)
+			update_special_color
 		if(mutations_overlay_update)
 			update_mutations_overlay()
 

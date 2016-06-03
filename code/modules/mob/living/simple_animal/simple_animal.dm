@@ -75,6 +75,7 @@
 
 	var/allow_movement_on_non_turfs = FALSE
 
+	var/list/prey_exclusions = list()
 
 /mob/living/simple_animal/New()
 	..()
@@ -83,6 +84,8 @@
 		real_name = name
 	if(!loc)
 		stack_trace("Simple animal being instantiated in nullspace")
+
+	verbs += /mob/living/proc/animal_nom
 
 /mob/living/simple_animal/Login()
 	if(src && src.client)
@@ -101,6 +104,17 @@
 			handle_automated_action()
 			handle_automated_speech()
 		return 1
+
+	// Start vore code. Digestion code is handled here.
+	// For each belly type
+	for (var/bellytype in vore_organs)
+		var/datum/belly/B = vore_organs[bellytype]
+		for(var/mob/living/M in B.internal_contents)
+			if(M.loc != src)
+				B.internal_contents -= M
+				log_admin("Had to remove [M] from belly [B] in [src]")
+		B.process_Life()
+	//End vore code.
 
 /mob/living/simple_animal/update_stat()
 	if(status_flags & GODMODE)

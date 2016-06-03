@@ -2,8 +2,7 @@ var/const/RESIZE_HUGE = 2
 var/const/RESIZE_BIG = 1.5
 var/const/RESIZE_NORMAL = 1
 var/const/RESIZE_SMALL = 0.75
-var/const/RESIZE_TINY = 0.5
-
+var/const/RESIZE_TINY = 0.55
 
 //average
 var/const/RESIZE_A_HUGEBIG = (RESIZE_HUGE + RESIZE_BIG) / 2
@@ -28,25 +27,9 @@ var/const/RESIZE_A_SMALLTINY = (RESIZE_SMALL + RESIZE_TINY) / 2
 	animate(src,transform = resize, time = 5) //Animate the player resizing
 	playerscale = size_mod //Change playerscale so that other items can interact with them
 
-/proc/get_matrix_largest()
-	var/matrix/mtrx=new()
-	return mtrx.Scale(2)
-/proc/get_matrix_large()
-	var/matrix/mtrx=new()
-	return mtrx.Scale(1.5)
-/proc/get_matrix_norm()
-	var/matrix/mtrx=new()
-	return mtrx
-/proc/get_matrix_small()
-	var/matrix/mtrx=new()
-	return mtrx.Scale(0.75)
-/proc/get_matrix_smallest()
-	var/matrix/mtrx=new()
-	return mtrx.Scale(0.5)
-
 //Seem to have removed resize_by_item proc, which was necessary for shrink rays and such to work.
 
-/* =
+// Ace was here! Redid this a little so we'd use math for shrinking characters. This is the old code.
 /mob/living/proc/set_size()
 	set name = "Set character size"
 	set category = "Resize"
@@ -64,18 +47,3 @@ var/const/RESIZE_A_SMALLTINY = (RESIZE_SMALL + RESIZE_TINY) / 2
 			resize(RESIZE_TINY)
 		if("Cancel")
 			return
-	message_admins("[key_name(src)] used the resize command in-game to be [playersize]. ([src ? "<a href='?_src_=holder;adminplayerobservecoodjump=1;X=[src.x];Y=[src.y];Z=[src.z]'>JMP</a>" : "null"])")
-
-
-When we add this to character customization, "short" will set you a little smaller basesize than normal, or "tall" for one that's a little larger than normal.
-If a player choses "Small" "Tiny" "Big" or "Macro" and not "tall" or "short", they will be set as that size. Not change their basesize which will be 1.
-If we change the basesize with other options it will cause bad results. "Tall" and "Short" will be purely within humanoid size ranges.
--Ace
-
-/mob/verb/resize_Readme()
-	set name = "READ ME!!"
-	set category = "Resize"
-	usr << "<span class='alert'>DO NOT ABUSE THESE COMMANDS. They are not here for you to play with. We were originally going to remove them but kept them for popular demand. \
-			Do not abuse their existence outside of ERP scenes where they apply, or reverting OOCly unwanted changes like someone lolshooting the crew with a shrink ray. -Ace</span>"
-
-			*/
